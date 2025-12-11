@@ -1,4 +1,7 @@
+using System.Security.Claims;
 using Domain.Models.DTOS.Gates;
+using GateSense.Application.Gates.Interfaces;
+using GetSense.API.ApiResult;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,22 +12,65 @@ namespace GetSense.API.Controllers;
 [Route("garages/{garageId:int}/gate")]
 public class GateController : ControllerBase
 {
-    [HttpPost("open")]
-    public IActionResult OpenGate(int garageId, [FromBody] GateCommandRequest request)
+    private readonly IGateService _gateService;
+
+    public GateController(IGateService gateService)
     {
-        return StatusCode(StatusCodes.Status501NotImplemented);
+        _gateService = gateService;
+    }
+
+    [HttpPost("open")]
+    public async Task<IActionResult> OpenGate(int garageId, [FromBody] GateCommandRequest request)
+    {
+        var userId = GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await _gateService.OpenGateAsync(garageId, request, userId.Value);
+        return result.MatchNoData(
+            successStatusCode: StatusCodes.Status200OK,
+            failure: ApiResults.ToProblemDetails
+        );
     }
 
     [HttpPost("close")]
-    public IActionResult CloseGate(int garageId, [FromBody] GateCommandRequest request)
+    public async Task<IActionResult> CloseGate(int garageId, [FromBody] GateCommandRequest request)
     {
-        return StatusCode(StatusCodes.Status501NotImplemented);
+        var userId = GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await _gateService.CloseGateAsync(garageId, request, userId.Value);
+        return result.MatchNoData(
+            successStatusCode: StatusCodes.Status200OK,
+            failure: ApiResults.ToProblemDetails
+        );
     }
 
     [HttpGet("state")]
-    public IActionResult GetGateState(int garageId)
+    public async Task<IActionResult> GetGateState(int garageId)
     {
-        return StatusCode(StatusCodes.Status501NotImplemented);
+        var userId = GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await _gateService.GetGateStateAsync(garageId, userId.Value);
+        return result.Match(
+            successStatusCode: StatusCodes.Status200OK,
+            failure: ApiResults.ToProblemDetails
+        );
+    }
+
+    private int? GetUserId()
+    {
+        var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return int.TryParse(id, out var userId) ? userId : null;
     }
 }
 

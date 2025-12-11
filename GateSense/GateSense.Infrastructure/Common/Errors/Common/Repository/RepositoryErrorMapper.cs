@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Npgsql;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Common.Errors.Common.Repository;
@@ -13,17 +13,14 @@ public static class RepositoryErrorMapper<T>
             return RepositoryErrors<T>.UpdateError;
         }
         
-        if (ex.InnerException is SqlException sqlEx)
+        if (ex.InnerException is PostgresException pgEx)
         {
-            switch (sqlEx.Number)
+            switch (pgEx.SqlState)
             {
-                // Unique constraints
-                case 2627: // Violation of PRIMARY KEY or UNIQUE constraint
-                case 2601: // Cannot insert duplicate key row
+                case PostgresErrorCodes.UniqueViolation:
                     return RepositoryErrors<T>.AddError;
-                // Foreign key constraints
-                case 547:  
-                    if (sqlEx.Message.Contains("DELETE", StringComparison.OrdinalIgnoreCase))
+                case PostgresErrorCodes.ForeignKeyViolation:
+                    if (pgEx.Message.Contains("DELETE", StringComparison.OrdinalIgnoreCase))
                     {
                         return RepositoryErrors<T>.DeleteError;
                     }

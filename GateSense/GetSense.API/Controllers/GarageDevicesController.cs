@@ -1,4 +1,7 @@
+using System.Security.Claims;
 using Domain.Models.DTOS.Devices;
+using GateSense.Application.Devices.Interfaces;
+using GetSense.API.ApiResult;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,22 +12,65 @@ namespace GetSense.API.Controllers;
 [Route("garages/{garageId:int}/devices")]
 public class GarageDevicesController : ControllerBase
 {
-    [HttpGet]
-    public IActionResult GetDevices(int garageId)
+    private readonly IGarageDeviceService _deviceService;
+
+    public GarageDevicesController(IGarageDeviceService deviceService)
     {
-        return StatusCode(StatusCodes.Status501NotImplemented);
+        _deviceService = deviceService;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetDevices(int garageId)
+    {
+        var userId = GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await _deviceService.GetDevicesAsync(garageId, userId.Value);
+        return result.Match(
+            successStatusCode: StatusCodes.Status200OK,
+            failure: ApiResults.ToProblemDetails
+        );
     }
 
     [HttpPost]
-    public IActionResult RegisterDevice(int garageId, [FromBody] RegisterDeviceRequest request)
+    public async Task<IActionResult> RegisterDevice(int garageId, [FromBody] RegisterDeviceRequest request)
     {
-        return StatusCode(StatusCodes.Status501NotImplemented);
+        var userId = GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await _deviceService.RegisterDeviceAsync(garageId, request, userId.Value);
+        return result.Match(
+            successStatusCode: StatusCodes.Status201Created,
+            failure: ApiResults.ToProblemDetails
+        );
     }
 
     [HttpDelete("{deviceId:int}")]
-    public IActionResult RemoveDevice(int garageId, int deviceId)
+    public async Task<IActionResult> RemoveDevice(int garageId, int deviceId)
     {
-        return StatusCode(StatusCodes.Status501NotImplemented);
+        var userId = GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await _deviceService.RemoveDeviceAsync(garageId, deviceId, userId.Value);
+        return result.MatchNoData(
+            successStatusCode: StatusCodes.Status204NoContent,
+            failure: ApiResults.ToProblemDetails
+        );
+    }
+
+    private int? GetUserId()
+    {
+        var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return int.TryParse(id, out var userId) ? userId : null;
     }
 }
 

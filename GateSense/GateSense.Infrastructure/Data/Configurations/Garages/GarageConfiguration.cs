@@ -23,10 +23,10 @@ public class GarageConfiguration : IEntityTypeConfiguration<Garage>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(g => g.CreatedOn)
-            .HasDefaultValueSql("SYSUTCDATETIME()");
+            .HasDefaultValueSql("NOW()");
 
         builder.Property(g => g.LastModifiedOn)
-            .HasDefaultValueSql("SYSUTCDATETIME()");
+            .HasDefaultValueSql("NOW()");
     }
 }
 

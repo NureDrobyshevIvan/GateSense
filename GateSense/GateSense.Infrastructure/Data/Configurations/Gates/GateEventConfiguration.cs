@@ -34,10 +34,10 @@ public class GateEventConfiguration : IEntityTypeConfiguration<GateEvent>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(e => e.CreatedOn)
-            .HasDefaultValueSql("SYSUTCDATETIME()");
+            .HasDefaultValueSql("NOW()");
 
         builder.Property(e => e.LastModifiedOn)
-            .HasDefaultValueSql("SYSUTCDATETIME()");
+            .HasDefaultValueSql("NOW()");
     }
 }
 

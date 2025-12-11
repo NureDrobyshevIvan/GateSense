@@ -25,10 +25,10 @@ public class IoTDeviceConfiguration : IEntityTypeConfiguration<IoTDevice>
             .HasMaxLength(32);
 
         builder.Property(d => d.CreatedOn)
-            .HasDefaultValueSql("SYSUTCDATETIME()");
+            .HasDefaultValueSql("NOW()");
 
         builder.Property(d => d.LastModifiedOn)
-            .HasDefaultValueSql("SYSUTCDATETIME()");
+            .HasDefaultValueSql("NOW()");
     }
 }
 

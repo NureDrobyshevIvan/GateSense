@@ -15,10 +15,10 @@ public class GarageAccessConfiguration : IEntityTypeConfiguration<GarageAccess>
             .HasMaxLength(32);
 
         builder.Property(x => x.CreatedOn)
-            .HasDefaultValueSql("SYSUTCDATETIME()");
+            .HasDefaultValueSql("NOW()");
 
         builder.Property(x => x.LastModifiedOn)
-            .HasDefaultValueSql("SYSUTCDATETIME()");
+            .HasDefaultValueSql("NOW()");
     }
 }
 

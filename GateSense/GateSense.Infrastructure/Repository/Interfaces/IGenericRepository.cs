@@ -22,7 +22,7 @@ public interface IGenericRepository<T> where T : BaseEntity
 
     Task<Result> DeleteAsync(Expression<Func<T, bool>> condition);
 
-    Task<Result<PagedList<T>>> FetchPaginatedByConditions(
+    Task<Result<IPagedList<T>>> FetchPaginatedByConditions(
         IEnumerable<(Expression<Func<T, bool>> predicate, PredicateOptions options)> conditions,
         (Expression<Func<T, object>> expression, bool isDesc) orderBy,
         IEnumerable<Func<IQueryable<T>, IQueryable<T>>> includes,

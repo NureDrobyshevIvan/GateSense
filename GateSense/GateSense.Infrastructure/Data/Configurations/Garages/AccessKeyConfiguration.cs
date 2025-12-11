@@ -22,10 +22,10 @@ public class AccessKeyConfiguration : IEntityTypeConfiguration<AccessKey>
             .HasMaxLength(256);
 
         builder.Property(x => x.CreatedOn)
-            .HasDefaultValueSql("SYSUTCDATETIME()");
+            .HasDefaultValueSql("NOW()");
 
         builder.Property(x => x.LastModifiedOn)
-            .HasDefaultValueSql("SYSUTCDATETIME()");
+            .HasDefaultValueSql("NOW()");
     }
 }
 

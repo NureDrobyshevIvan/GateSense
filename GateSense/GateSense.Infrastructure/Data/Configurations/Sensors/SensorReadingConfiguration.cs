@@ -19,10 +19,10 @@ public class SensorReadingConfiguration : IEntityTypeConfiguration<SensorReading
             .HasColumnType("decimal(10,2)");
 
         builder.Property(s => s.CreatedOn)
-            .HasDefaultValueSql("SYSUTCDATETIME()");
+            .HasDefaultValueSql("NOW()");
 
         builder.Property(s => s.LastModifiedOn)
-            .HasDefaultValueSql("SYSUTCDATETIME()");
+            .HasDefaultValueSql("NOW()");
     }
 }
 

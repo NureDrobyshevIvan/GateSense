@@ -1,4 +1,7 @@
+using Domain.Models.DTOS.IoT;
 using Domain.Models.DTOS.Sensors;
+using GateSense.Application.IoT.Interfaces;
+using GetSense.API.ApiResult;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GetSense.API.Controllers;
@@ -7,16 +10,36 @@ namespace GetSense.API.Controllers;
 [Route("iot")]
 public class IoTController : ControllerBase
 {
-    [HttpPost("sensor-data")]
-    public IActionResult SubmitSensorData([FromBody] SensorDataSubmissionRequest request)
+    private readonly IIoTService _iotService;
+
+    public IoTController(IIoTService iotService)
     {
-        return StatusCode(StatusCodes.Status501NotImplemented);
+        _iotService = iotService;
+    }
+
+    [HttpPost("sensor-data")]
+    public async Task<IActionResult> SubmitSensorData([FromBody] SensorDataSubmissionRequest request)
+    {
+        var result = await _iotService.SubmitSensorDataAsync(request);
+        return result.MatchNoData(
+            successStatusCode: StatusCodes.Status200OK,
+            failure: ApiResults.ToProblemDetails
+        );
     }
 
     [HttpPost("heartbeat")]
-    public IActionResult SendHeartbeat([FromBody] string serialNumber)
+    public async Task<IActionResult> SendHeartbeat([FromBody] HeartbeatRequest request)
     {
-        return StatusCode(StatusCodes.Status501NotImplemented);
+        if (request == null || string.IsNullOrWhiteSpace(request.SerialNumber))
+        {
+            return BadRequest(new { error = "SerialNumber is required" });
+        }
+
+        var result = await _iotService.SendHeartbeatAsync(request.SerialNumber);
+        return result.MatchNoData(
+            successStatusCode: StatusCodes.Status200OK,
+            failure: ApiResults.ToProblemDetails
+        );
     }
 }
 

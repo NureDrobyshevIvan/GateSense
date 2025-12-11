@@ -29,7 +29,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
         try
         {
-            IQueryable<T> query = Table.AsQueryable();
+            IQueryable<T> query = Table.AsNoTracking().AsQueryable();
             if (includes != null)
             {
                 foreach (var include in includes)
@@ -139,7 +139,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
         }
     }
 
-    public virtual async Task<Result<PagedList<T>>> FetchPaginatedByConditions(
+    public virtual async Task<Result<IPagedList<T>>> FetchPaginatedByConditions(
         IEnumerable<(Expression<Func<T, bool>> predicate, PredicateOptions options)> conditions,
         (Expression<Func<T, object>> expression, bool isDesc) orderBy,
         IEnumerable<Func<IQueryable<T>, IQueryable<T>>> includes,
@@ -182,11 +182,11 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
                 : query.OrderBy(orderBy.expression);
 
             var result = await PagedList<T>.CreateAsync(orderedQuery, pageNumber, pageSize);
-            return Result<PagedList<T>>.Success(result);
+            return Result<IPagedList<T>>.Success(result);
         }
         catch (DbUpdateException ex)
         {
-            return Result<PagedList<T>>.Failure(RepositoryErrorMapper<T>.Map(ex));
+            return Result<IPagedList<T>>.Failure(RepositoryErrorMapper<T>.Map(ex));
         }
     }
 
