@@ -1,0 +1,34 @@
+2025-11-17 13:13:56.921 +02:00 [ERR] Failed executing DbCommand (449ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE [GateEvents] (
+    [Id] int NOT NULL IDENTITY,
+    [GarageId] int NOT NULL,
+    [InitiatorUserId] int NULL,
+    [AccessKeyId] int NULL,
+    [TriggerSource] nvarchar(32) NOT NULL,
+    [Action] nvarchar(16) NOT NULL,
+    [Result] nvarchar(16) NOT NULL,
+    [FailureReason] nvarchar(256) NULL,
+    [CreatedOn] datetimeoffset NOT NULL DEFAULT (SYSUTCDATETIME()),
+    [LastModifiedOn] datetimeoffset NOT NULL DEFAULT (SYSUTCDATETIME()),
+    CONSTRAINT [PK_GateEvents] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_GateEvents_AccessKeys_AccessKeyId] FOREIGN KEY ([AccessKeyId]) REFERENCES [AccessKeys] ([Id]) ON DELETE SET NULL,
+    CONSTRAINT [FK_GateEvents_AspNetUsers_InitiatorUserId] FOREIGN KEY ([InitiatorUserId]) REFERENCES [AspNetUsers] ([Id]) ON DELETE SET NULL,
+    CONSTRAINT [FK_GateEvents_Garages_GarageId] FOREIGN KEY ([GarageId]) REFERENCES [Garages] ([Id]) ON DELETE CASCADE
+);
+2025-11-17 13:15:19.514 +02:00 [ERR] Failed executing DbCommand (40ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE [GateEvents] (
+    [Id] int NOT NULL IDENTITY,
+    [GarageId] int NOT NULL,
+    [InitiatorUserId] int NULL,
+    [AccessKeyId] int NULL,
+    [TriggerSource] nvarchar(32) NOT NULL,
+    [Action] nvarchar(16) NOT NULL,
+    [Result] nvarchar(16) NOT NULL,
+    [FailureReason] nvarchar(256) NULL,
+    [CreatedOn] datetimeoffset NOT NULL DEFAULT (SYSUTCDATETIME()),
+    [LastModifiedOn] datetimeoffset NOT NULL DEFAULT (SYSUTCDATETIME()),
+    CONSTRAINT [PK_GateEvents] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_GateEvents_AccessKeys_AccessKeyId] FOREIGN KEY ([AccessKeyId]) REFERENCES [AccessKeys] ([Id]) ON DELETE SET NULL,
+    CONSTRAINT [FK_GateEvents_AspNetUsers_InitiatorUserId] FOREIGN KEY ([InitiatorUserId]) REFERENCES [AspNetUsers] ([Id]) ON DELETE SET NULL,
+    CONSTRAINT [FK_GateEvents_Garages_GarageId] FOREIGN KEY ([GarageId]) REFERENCES [Garages] ([Id]) ON DELETE CASCADE
+);
