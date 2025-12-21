@@ -16,6 +16,8 @@ using GateSense.Application.Sensors.Interfaces;
 using GateSense.Application.Sensors.Services;
 using GateSense.Application.Logs.Interfaces;
 using GateSense.Application.Logs.Services;
+using GateSense.Application.Admin.Interfaces;
+using GateSense.Application.Admin.Services;
 using Domain.Models.Auth;
 using Domain.Models.Devices;
 using Domain.Models.Garages;
@@ -29,6 +31,7 @@ using Infrastructure.Data;
 using Infrastructure.Data.UnitOfWork;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.Repository.Services;
+using Infrastructure.BackgroundServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -179,6 +182,7 @@ public static class ConfigureBuilder
         services.AddScoped<IIoTService, IoTService>();
         services.AddScoped<ISensorService, SensorService>();
         services.AddScoped<ILogService, LogService>();
+        services.AddScoped<IAdminService, AdminService>();
         services.AddScoped(typeof(Infrastructure.Repository.Interfaces.IGenericRepository<Domain.Models.Auth.AccessToken>), typeof(Infrastructure.Repository.Services.GenericRepository<Domain.Models.Auth.AccessToken>));
         services.AddScoped(typeof(Infrastructure.Repository.Interfaces.IGenericRepository<Domain.Models.Auth.RefreshToken>), typeof(Infrastructure.Repository.Services.GenericRepository<Domain.Models.Auth.RefreshToken>));
         services.AddScoped(typeof(Infrastructure.Repository.Interfaces.IGenericRepository<GarageAccess>), typeof(Infrastructure.Repository.Services.GenericRepository<GarageAccess>));
@@ -188,6 +192,11 @@ public static class ConfigureBuilder
         services.AddScoped(typeof(Infrastructure.Repository.Interfaces.IGenericRepository<GateEvent>), typeof(Infrastructure.Repository.Services.GenericRepository<GateEvent>));
         services.AddScoped(typeof(Infrastructure.Repository.Interfaces.IGenericRepository<SensorReading>), typeof(Infrastructure.Repository.Services.GenericRepository<SensorReading>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        // Background Services
+        services.Configure<HeartbeatMonitorOptions>(
+            builder.Configuration.GetSection(HeartbeatMonitorOptions.SectionName));
+        services.AddHostedService<DeviceHeartbeatMonitorService>();
     }
 
     private static void AddSwagger(this WebApplicationBuilder builder)

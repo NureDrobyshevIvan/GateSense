@@ -29,6 +29,7 @@ public class GaragesController : ControllerBase
         }
 
         var result = await _garageService.GetUserGaragesAsync(userId.Value);
+        
         return result.Match(
             successStatusCode: StatusCodes.Status200OK,
             failure: ApiResults.ToProblemDetails

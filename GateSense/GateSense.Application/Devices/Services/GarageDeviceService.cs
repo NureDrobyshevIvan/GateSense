@@ -60,7 +60,7 @@ public class GarageDeviceService : IGarageDeviceService
         {
             return Result<int>.Failure(InvalidDeviceType);
         }
-
+        
         var device = new IoTDevice
         {
             GarageId = garageId,
@@ -69,7 +69,7 @@ public class GarageDeviceService : IGarageDeviceService
             DeviceType = deviceType,
             Status = DeviceStatus.Online
         };
-
+        
         await _unitOfWork.BeginTransactionAsync();
 
         var addResult = await _deviceRepository.AddAsync(device);
