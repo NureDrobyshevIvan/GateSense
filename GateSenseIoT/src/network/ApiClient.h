@@ -19,6 +19,7 @@ public:
   bool connectWiFi();
   bool sendHeartbeat();
   GateState getGateState();
+  bool sendSensorData(String sensorType, float value, String unit);
   bool isWiFiConnected();
   
 private:

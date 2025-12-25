@@ -1,4 +1,5 @@
 using Domain.Models.DTOS.Sensors;
+using Domain.Models.Devices;
 using Domain.Models.Garages;
 using Domain.Models.Sensors;
 using GateSense.Application.Sensors.Interfaces;
@@ -16,6 +17,8 @@ public class SensorService : ISensorService
 {
     private readonly IGenericRepository<SensorReading> _sensorReadingRepository;
     private readonly IGenericRepository<Garage> _garageRepository;
+    private readonly IGenericRepository<GarageAccess> _garageAccessRepository;
+    private readonly IGenericRepository<IoTDevice> _deviceRepository;
 
     private static readonly Error GarageNotFound =
         Error.NotFound("sensor.GARAGE_NOT_FOUND", "Garage not found");
@@ -23,30 +26,59 @@ public class SensorService : ISensorService
     private static readonly Error ForbiddenGarageAccess =
         Error.Forbidden("sensor.FORBIDDEN", "You do not have access to this garage");
 
-    // Alert thresholds
-    private const decimal CO_ALERT_THRESHOLD = 50; // ppm
-    private const decimal SMOKE_ALERT_THRESHOLD = 0; // any detection
+    private const decimal CO_ALERT_THRESHOLD = 50;
+    private const decimal SMOKE_ALERT_THRESHOLD = 0;
 
     public SensorService(
         IGenericRepository<SensorReading> sensorReadingRepository,
-        IGenericRepository<Garage> garageRepository)
+        IGenericRepository<Garage> garageRepository,
+        IGenericRepository<GarageAccess> garageAccessRepository,
+        IGenericRepository<IoTDevice> deviceRepository)
     {
         _sensorReadingRepository = sensorReadingRepository;
         _garageRepository = garageRepository;
+        _garageAccessRepository = garageAccessRepository;
+        _deviceRepository = deviceRepository;
+    }
+
+    private async Task<Result> CheckUserAccess(int garageId, int userId)
+    {
+        var garageResult = await _garageRepository.GetSingleByConditionAsync(g => g.Id == garageId);
+        if (!garageResult.IsSuccess)
+        {
+            return Result.Failure(GarageNotFound);
+        }
+
+        var garage = garageResult.Value;
+
+        if (garage.OwnerId == null)
+        {
+            return Result.Success();
+        }
+
+        if (garage.OwnerId == userId)
+        {
+            return Result.Success();
+        }
+
+        var accessResult = await _garageAccessRepository.GetSingleByConditionAsync(
+            a => a.GarageId == garageId && a.UserId == userId && 
+                 (a.ExpiresOn == null || a.ExpiresOn > DateTimeOffset.UtcNow));
+        
+        if (accessResult.IsSuccess)
+        {
+            return Result.Success();
+        }
+
+        return Result.Failure(ForbiddenGarageAccess);
     }
 
     public async Task<Result<IEnumerable<SensorReading>>> GetLatestReadingsAsync(int garageId, int userId)
     {
-        // Verify garage access
-        var garageResult = await _garageRepository.GetSingleByConditionAsync(g => g.Id == garageId);
-        if (!garageResult.IsSuccess)
+        var accessCheck = await CheckUserAccess(garageId, userId);
+        if (!accessCheck.IsSuccess)
         {
-            return Result<IEnumerable<SensorReading>>.Failure(GarageNotFound);
-        }
-
-        if (garageResult.Value.OwnerId != userId)
-        {
-            return Result<IEnumerable<SensorReading>>.Failure(ForbiddenGarageAccess);
+            return Result<IEnumerable<SensorReading>>.Failure(accessCheck.Errors);
         }
 
         // Get all devices for this garage
@@ -75,22 +107,28 @@ public class SensorService : ISensorService
 
     public async Task<Result<IPagedList<SensorReading>>> GetSensorHistoryAsync(int garageId, int userId, SensorHistoryQuery query)
     {
-        // Verify garage access
-        var garageResult = await _garageRepository.GetSingleByConditionAsync(g => g.Id == garageId);
-        if (!garageResult.IsSuccess)
+        var accessCheck = await CheckUserAccess(garageId, userId);
+        if (!accessCheck.IsSuccess)
         {
-            return Result<IPagedList<SensorReading>>.Failure(GarageNotFound);
+            return Result<IPagedList<SensorReading>>.Failure(accessCheck.Errors);
         }
 
-        if (garageResult.Value.OwnerId != userId)
+        var devicesResult = await _deviceRepository.GetListByConditionAsync(d => d.GarageId == garageId);
+        if (!devicesResult.IsSuccess)
         {
-            return Result<IPagedList<SensorReading>>.Failure(ForbiddenGarageAccess);
+            return Result<IPagedList<SensorReading>>.Failure(devicesResult.Errors);
         }
 
-        // Build conditions
+        var deviceIds = devicesResult.Value.Select(d => d.Id).ToList();
+        if (!deviceIds.Any())
+        {
+            var emptyResult = new PagedList<SensorReading>(new List<SensorReading>(), 0, query.PageNumber, query.PageSize);
+            return Result<IPagedList<SensorReading>>.Success(emptyResult);
+        }
+
         var conditions = new List<(System.Linq.Expressions.Expression<Func<SensorReading, bool>>, PredicateOptions)>
         {
-            (s => s.Device.GarageId == garageId, PredicateOptions.AND)
+            (s => deviceIds.Contains(s.DeviceId), PredicateOptions.AND)
         };
 
         if (query.From.HasValue)
@@ -116,7 +154,7 @@ public class SensorService : ISensorService
 
         var result = await _sensorReadingRepository.FetchPaginatedByConditions(
             conditions,
-            (s => s.RecordedOn, true), // Order by RecordedOn descending
+            (s => s.RecordedOn, true),
             includes,
             isNoTracking: true,
             isSplitQuery: false,
@@ -128,16 +166,10 @@ public class SensorService : ISensorService
 
     public async Task<Result<IEnumerable<SensorReading>>> GetActiveAlertsAsync(int garageId, int userId)
     {
-        // Verify garage access
-        var garageResult = await _garageRepository.GetSingleByConditionAsync(g => g.Id == garageId);
-        if (!garageResult.IsSuccess)
+        var accessCheck = await CheckUserAccess(garageId, userId);
+        if (!accessCheck.IsSuccess)
         {
-            return Result<IEnumerable<SensorReading>>.Failure(GarageNotFound);
-        }
-
-        if (garageResult.Value.OwnerId != userId)
-        {
-            return Result<IEnumerable<SensorReading>>.Failure(ForbiddenGarageAccess);
+            return Result<IEnumerable<SensorReading>>.Failure(accessCheck.Errors);
         }
 
         var includes = new List<Func<IQueryable<SensorReading>, IQueryable<SensorReading>>>

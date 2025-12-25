@@ -127,4 +127,42 @@ GateState ApiClient::getGateState() {
   return gateState;
 }
 
+bool ApiClient::sendSensorData(String sensorType, float value, String unit) {
+  if (!isWiFiConnected()) {
+    if (!connectWiFi()) {
+      return false;
+    }
+  }
+  
+  String endpoint = String(API_BASE_URL) + String(API_SENSOR_DATA_ENDPOINT);
+  
+  unsigned long now = millis();
+  unsigned long seconds = now / 1000;
+  
+  char timestamp[30];
+  snprintf(timestamp, sizeof(timestamp), "2025-01-01T00:00:%02lu.000Z", seconds % 86400);
+  
+  StaticJsonDocument<256> doc;
+  doc["serialNumber"] = serialNumber;
+  doc["sensorType"] = sensorType;
+  doc["value"] = value;
+  doc["unit"] = unit;
+  doc["recordedOn"] = timestamp;
+  
+  String jsonBody;
+  serializeJson(doc, jsonBody);
+  
+  http.setTimeout(5000);
+  if (isHttps()) {
+    http.begin(client, endpoint);
+  } else {
+    http.begin(endpoint);
+  }
+  http.addHeader("Content-Type", "application/json");
+  
+  int httpCode = http.POST(jsonBody);
+  http.end();
+  
+  return (httpCode == 200 || httpCode == 201);
+}
 

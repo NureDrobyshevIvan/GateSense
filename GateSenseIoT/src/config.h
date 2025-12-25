@@ -16,6 +16,7 @@
 
 #define API_HEARTBEAT_ENDPOINT "/iot/heartbeat"
 #define API_GATE_STATE_ENDPOINT "/iot/gate-state"
+#define API_SENSOR_DATA_ENDPOINT "/iot/sensor-data"
 
 // Пристрій
 #define DEVICE_SERIAL_NUMBER "ESP32-001"
@@ -23,6 +24,7 @@
 
 // Пін для Servo PWM сигналу
 #define PIN_SERVO_PWM 5
+#define PIN_MQ2_AOUT 34
 
 // Кути для Servo (ворота)
 #define SERVO_ANGLE_CLOSED 0
@@ -31,6 +33,7 @@
 // Таймери (в мілісекундах)
 #define HEARTBEAT_INTERVAL 30000
 #define GATE_STATE_CHECK_INTERVAL 10000
+#define SENSOR_READ_INTERVAL 5000
 
 // Налаштування WiFi підключення
 #define WIFI_CONNECT_TIMEOUT 30000
