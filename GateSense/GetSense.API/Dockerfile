@@ -25,9 +25,11 @@ RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
-ENV ASPNETCORE_URLS=http://+:8080
-EXPOSE 8080
 
 COPY --from=build /app/publish .
+
+# Railway automatically sets PORT environment variable
+# Program.cs will handle PORT configuration
+# Don't set ASPNETCORE_URLS here to avoid conflicts with Railway's HTTP_PORTS
 
 ENTRYPOINT ["dotnet", "GetSense.API.dll"]

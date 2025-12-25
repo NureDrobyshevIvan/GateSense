@@ -1,6 +1,7 @@
 ﻿using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace GetSense.API.Configurations;
 
@@ -21,12 +22,24 @@ public static class ConfigureApp
 
         using var scope = app.Services.CreateScope();
         var scopedServices = scope.ServiceProvider;
-        var context = scopedServices.GetRequiredService<ApplicationDbContext>();
+        var logger = scopedServices.GetRequiredService<ILogger<Program>>();
+        
+        try
+        {
+            var context = scopedServices.GetRequiredService<ApplicationDbContext>();
+            logger.LogInformation("Starting database migration...");
+            await context.Database.MigrateAsync();
+            logger.LogInformation("Database migration completed successfully");
 
-        await context.Database.MigrateAsync();
-
-        var seeder = new DatabaseSeeder(scope);
-        await seeder.SeedAsync();
+            var seeder = new DatabaseSeeder(scope);
+            logger.LogInformation("Starting database seeding...");
+            await seeder.SeedAsync();
+            logger.LogInformation("Database seeding completed successfully");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error during database migration or seeding. Application will continue to start.");
+        }
 
         if (!app.Environment.IsDevelopment())
         {
