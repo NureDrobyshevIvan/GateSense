@@ -2,22 +2,22 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copy solution file
-COPY GateSense.sln ./
+COPY GateSense/GateSense.sln ./
 
 # Copy project files
-COPY GateSense.Domain/GateSense.Domain.csproj ./GateSense.Domain/
-COPY GateSense.Application/GateSense.Application.csproj ./GateSense.Application/
-COPY GateSense.Infrastructure/GateSense.Infrastructure.csproj ./GateSense.Infrastructure/
-COPY GetSense.API/GetSense.API.csproj ./GetSense.API/
+COPY GateSense/GateSense.Domain/GateSense.Domain.csproj ./GateSense.Domain/
+COPY GateSense/GateSense.Application/GateSense.Application.csproj ./GateSense.Application/
+COPY GateSense/GateSense.Infrastructure/GateSense.Infrastructure.csproj ./GateSense.Infrastructure/
+COPY GateSense/GetSense.API/GetSense.API.csproj ./GetSense.API/
 
 # Restore dependencies
 RUN dotnet restore GateSense.sln
 
 # Copy all source files
-COPY GateSense.Domain/ ./GateSense.Domain/
-COPY GateSense.Application/ ./GateSense.Application/
-COPY GateSense.Infrastructure/ ./GateSense.Infrastructure/
-COPY GetSense.API/ ./GetSense.API/
+COPY GateSense/GateSense.Domain/ ./GateSense.Domain/
+COPY GateSense/GateSense.Application/ ./GateSense.Application/
+COPY GateSense/GateSense.Infrastructure/ ./GateSense.Infrastructure/
+COPY GateSense/GetSense.API/ ./GetSense.API/
 
 # Build and publish
 WORKDIR /src/GetSense.API
