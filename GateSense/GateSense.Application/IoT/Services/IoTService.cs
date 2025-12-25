@@ -1,6 +1,7 @@
 using Domain.Models.DTOS.Gates;
 using Domain.Models.DTOS.Sensors;
 using Domain.Models.Devices;
+using Domain.Models.Garages;
 using Domain.Models.Gates;
 using Domain.Models.Sensors;
 using GateSense.Application.IoT.Interfaces;
@@ -15,6 +16,7 @@ public class IoTService : IIoTService
     private readonly IGenericRepository<IoTDevice> _deviceRepository;
     private readonly IGenericRepository<SensorReading> _sensorReadingRepository;
     private readonly IGenericRepository<GateEvent> _gateEventRepository;
+    private readonly IGenericRepository<Garage> _garageRepository;
 
     private static readonly Error DeviceNotFound =
         Error.NotFound("iot.DEVICE_NOT_FOUND", "Device with the specified serial number was not found");
@@ -25,11 +27,13 @@ public class IoTService : IIoTService
     public IoTService(
         IGenericRepository<IoTDevice> deviceRepository,
         IGenericRepository<SensorReading> sensorReadingRepository,
-        IGenericRepository<GateEvent> gateEventRepository)
+        IGenericRepository<GateEvent> gateEventRepository,
+        IGenericRepository<Garage> garageRepository)
     {
         _deviceRepository = deviceRepository;
         _sensorReadingRepository = sensorReadingRepository;
         _gateEventRepository = gateEventRepository;
+        _garageRepository = garageRepository;
     }
 
     public async Task<Result> SubmitSensorDataAsync(SensorDataSubmissionRequest request)
@@ -92,21 +96,49 @@ public class IoTService : IIoTService
         var deviceResult = await _deviceRepository.GetSingleByConditionAsync(
             d => d.SerialNumber == serialNumber);
 
+        IoTDevice device;
+
         if (!deviceResult.IsSuccess)
         {
-            return Result.Failure(DeviceNotFound);
+            // Device doesn't exist - create it automatically
+            // Try to find or use default garage (ID = 1)
+            var garageResult = await _garageRepository.GetSingleByConditionAsync(g => g.Id == 1);
+            
+            if (!garageResult.IsSuccess)
+            {
+                return Result.Failure(Error.NotFound("iot.GARAGE_NOT_FOUND", 
+                    "Default garage (ID=1) not found. Please create a garage first."));
+            }
+
+            // Create new device
+            device = new IoTDevice
+            {
+                SerialNumber = serialNumber,
+                GarageId = 1,
+                DeviceType = DeviceType.GateController,
+                Status = DeviceStatus.Online,
+                LastHeartbeatOn = DateTimeOffset.UtcNow
+            };
+
+            var addResult = await _deviceRepository.AddAsync(device);
+            if (!addResult.IsSuccess)
+            {
+                return addResult;
+            }
         }
-
-        var device = deviceResult.Value;
-
-        // Update heartbeat timestamp and status
-        device.LastHeartbeatOn = DateTimeOffset.UtcNow;
-        device.Status = DeviceStatus.Online;
-
-        var updateResult = await _deviceRepository.UpdateAsync(device);
-        if (!updateResult.IsSuccess)
+        else
         {
-            return updateResult;
+            device = deviceResult.Value;
+
+            // Update heartbeat timestamp and status
+            device.LastHeartbeatOn = DateTimeOffset.UtcNow;
+            device.Status = DeviceStatus.Online;
+
+            var updateResult = await _deviceRepository.UpdateAsync(device);
+            if (!updateResult.IsSuccess)
+            {
+                return updateResult;
+            }
         }
 
         return Result.Success();
@@ -123,13 +155,32 @@ public class IoTService : IIoTService
         var deviceResult = await _deviceRepository.GetSingleByConditionAsync(
             d => d.SerialNumber == serialNumber);
 
+        int garageId;
+
         if (!deviceResult.IsSuccess)
         {
-            return Result<GateStateResponse>.Failure(DeviceNotFound);
-        }
+            // Device doesn't exist - try to create it automatically
+            var garageResult = await _garageRepository.GetSingleByConditionAsync(g => g.Id == 1);
+            
+            if (!garageResult.IsSuccess)
+            {
+                // Return default response if garage doesn't exist
+                return Result<GateStateResponse>.Success(new GateStateResponse
+                {
+                    GarageId = 0,
+                    State = "Unknown",
+                    LastAction = null,
+                    LastActionTime = null
+                });
+            }
 
-        var device = deviceResult.Value;
-        int garageId = device.GarageId;
+            garageId = 1;
+        }
+        else
+        {
+            var device = deviceResult.Value;
+            garageId = device.GarageId;
+        }
 
         var eventsResult = await _gateEventRepository.GetListByConditionAsync(e => e.GarageId == garageId);
 
