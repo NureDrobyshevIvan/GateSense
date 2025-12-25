@@ -121,6 +121,31 @@ public static class ConfigureBuilder
 
         services.AddAuthorization();
 
+        if (jwtConfig == null)
+        {
+            throw new InvalidOperationException("AudienceTokenConfig section is not configured. Please set AudienceTokenConfig__JwtKey, AudienceTokenConfig__JwtIssuer, and AudienceTokenConfig__JwtAudience environment variables.");
+        }
+
+        if (string.IsNullOrWhiteSpace(jwtConfig.JwtKey))
+        {
+            throw new InvalidOperationException("JWT Key is not configured. Please set AudienceTokenConfig__JwtKey environment variable (minimum 32 characters).");
+        }
+
+        if (jwtConfig.JwtKey.Length < 32)
+        {
+            throw new InvalidOperationException($"JWT Key must be at least 32 characters long. Current length: {jwtConfig.JwtKey.Length}. Please set AudienceTokenConfig__JwtKey environment variable.");
+        }
+
+        if (string.IsNullOrWhiteSpace(jwtConfig.JwtIssuer))
+        {
+            throw new InvalidOperationException("JWT Issuer is not configured. Please set AudienceTokenConfig__JwtIssuer environment variable.");
+        }
+
+        if (string.IsNullOrWhiteSpace(jwtConfig.JwtAudience))
+        {
+            throw new InvalidOperationException("JWT Audience is not configured. Please set AudienceTokenConfig__JwtAudience environment variable.");
+        }
+
         services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
