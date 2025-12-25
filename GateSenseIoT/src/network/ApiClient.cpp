@@ -61,57 +61,26 @@ bool ApiClient::sendHeartbeat() {
   
   String endpoint = String(API_BASE_URL) + String(API_HEARTBEAT_ENDPOINT);
   
-  Serial.print("Sending heartbeat to: ");
-  Serial.println(endpoint);
-  
   StaticJsonDocument<128> doc;
   doc["serialNumber"] = serialNumber;
   
   String jsonBody;
   serializeJson(doc, jsonBody);
   
-  Serial.print("Request body: ");
-  Serial.println(jsonBody);
-  
-  http.setTimeout(10000);
-  bool beginResult = false;
+  http.setTimeout(5000);
   if (isHttps()) {
-    Serial.println("Using HTTPS connection");
-    beginResult = http.begin(client, endpoint);
+    http.begin(client, endpoint);
   } else {
-    Serial.println("Using HTTP connection");
-    beginResult = http.begin(endpoint);
+    http.begin(endpoint);
   }
-  
-  if (!beginResult) {
-    Serial.println("Failed to begin HTTP connection");
-    return false;
-  }
-  
   http.addHeader("Content-Type", "application/json");
   
   int httpCode = http.POST(jsonBody);
-  
-  Serial.print("HTTP response code: ");
-  Serial.println(httpCode);
-  
-  if (httpCode > 0) {
-    String response = http.getString();
-    Serial.print("Response: ");
-    Serial.println(response);
-  } else {
-    Serial.print("Connection failed. Error: ");
-    Serial.println(http.errorToString(httpCode));
-  }
-  
   http.end();
   
   if (httpCode == 200 || httpCode == 201) {
-    Serial.println("Heartbeat sent successfully");
     return true;
   } else {
-    Serial.print("Failed to send heartbeat. HTTP code: ");
-    Serial.println(httpCode);
     return false;
   }
 }
@@ -140,24 +109,19 @@ GateState ApiClient::getGateState() {
     String payload = http.getString();
     http.end();
     
-    StaticJsonDocument<256> doc;
+    StaticJsonDocument<512> doc;
     DeserializationError error = deserializeJson(doc, payload);
     
     if (!error) {
-      gateState.state = doc["state"] | "Unknown";
+      if (doc.containsKey("data")) {
+        gateState.state = doc["data"]["state"] | "Unknown";
+      } else {
+        gateState.state = doc["state"] | "Unknown";
+      }
       gateState.isValid = true;
-    } else {
-      Serial.print("JSON parse error: ");
-      Serial.println(error.c_str());
     }
-  } else if (httpCode > 0) {
-    http.end();
-    Serial.print("Failed to get gate state. HTTP code: ");
-    Serial.println(httpCode);
   } else {
     http.end();
-    Serial.print("Connection failed. Error code: ");
-    Serial.println(httpCode);
   }
   
   return gateState;

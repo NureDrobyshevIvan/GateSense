@@ -73,28 +73,14 @@ void checkGateState() {
   GateState gateState = apiClient.getGateState();
   
   if (!gateState.isValid) {
-    Serial.println("Failed to get gate state from server");
     return;
   }
   
   if (gateState.state != lastGateState) {
-    Serial.print("Gate state changed: ");
-    Serial.print(lastGateState);
-    Serial.print(" -> ");
-    Serial.println(gateState.state);
-    
     if (gateState.state == "Open") {
-      Serial.println(">>> Opening gate...");
       gateServo.write(SERVO_ANGLE_OPEN);
-      Serial.print("Gate angle set to: ");
-      Serial.print(SERVO_ANGLE_OPEN);
-      Serial.println("° (OPEN)");
     } else if (gateState.state == "Closed") {
-      Serial.println(">>> Closing gate...");
       gateServo.write(SERVO_ANGLE_CLOSED);
-      Serial.print("Gate angle set to: ");
-      Serial.print(SERVO_ANGLE_CLOSED);
-      Serial.println("° (CLOSED)");
     }
     
     lastGateState = gateState.state;
