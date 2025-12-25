@@ -10,7 +10,7 @@ public interface IAccessService
 
     Task<Result> AssignFamilyAccessAsync(AssignFamilyAccessRequest request, int userId);
 
-    Task<Result<int>> CreateGuestAccessAsync(CreateGuestAccessRequest request, int userId);
+    Task<Result<CreateGuestAccessResponse>> CreateGuestAccessAsync(CreateGuestAccessRequest request, int userId);
 
     Task<Result> RevokeAccessAsync(int accessId, int userId);
 }

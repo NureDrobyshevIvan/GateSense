@@ -95,21 +95,8 @@ public class GateService : IGateService
 
     private async Task<Result> ExecuteGateCommand(int garageId, GateCommandRequest request, int userId, GateAction action)
     {
-        var guard = await EnsureGarageAccess(garageId, userId);
-        if (!guard.IsSuccess)
-        {
-            return guard;
-        }
-
-        // Determine trigger source based on user's access
-        var accessCheck = await CheckUserAccess(garageId, userId);
-        GateTriggerSource trigger = accessCheck.IsOwner 
-            ? GateTriggerSource.Owner 
-            : accessCheck.IsFamily 
-                ? GateTriggerSource.Family 
-                : GateTriggerSource.Guest;
-
         AccessKey? accessKey = null;
+        GateTriggerSource trigger;
 
         if (!string.IsNullOrEmpty(request.AccessKeyToken))
         {
@@ -127,6 +114,21 @@ public class GateService : IGateService
             accessKey = keyResult.Value;
             trigger = keyResult.Value.KeyType == AccessKeyType.Family ? GateTriggerSource.Family : GateTriggerSource.Guest;
         }
+        else
+        {
+            var guard = await EnsureGarageAccess(garageId, userId);
+            if (!guard.IsSuccess)
+            {
+                return guard;
+            }
+
+            var accessCheck = await CheckUserAccess(garageId, userId);
+            trigger = accessCheck.IsOwner 
+                ? GateTriggerSource.Owner 
+                : accessCheck.IsFamily 
+                    ? GateTriggerSource.Family 
+                    : GateTriggerSource.Guest;
+        }
 
         var gateEvent = new GateEvent
         {
@@ -138,8 +140,7 @@ public class GateService : IGateService
             Result = GateActionResult.Success,
             FailureReason = null
         };
-
-        // TODO: integrate with actual IoT command dispatch; for now record the event as success
+        
         var addResult = await _gateEventRepository.AddAsync(gateEvent);
         return addResult.IsSuccess ? Result.Success() : Result.Failure(addResult.Errors);
     }
@@ -203,3 +204,4 @@ public class GateService : IGateService
     }
 }
 
+// TODO: integrate with actual IoT command dispatch; for now record the event as success

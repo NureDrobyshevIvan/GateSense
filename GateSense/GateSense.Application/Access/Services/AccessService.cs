@@ -124,26 +124,39 @@ public class AccessService : IAccessService
         return Result.Success();
     }
 
-    public async Task<Result<int>> CreateGuestAccessAsync(CreateGuestAccessRequest request, int userId)
+    public async Task<Result<CreateGuestAccessResponse>> CreateGuestAccessAsync(CreateGuestAccessRequest request, int userId)
     {
         var guard = await EnsureGarageOwned(request.GarageId, userId);
         if (!guard.IsSuccess)
         {
-            return Result<int>.Failure(guard.Errors);
+            return Result<CreateGuestAccessResponse>.Failure(guard.Errors);
         }
 
+        var token = Guid.NewGuid().ToString("N");
         var accessKey = new AccessKey
         {
             GarageId = request.GarageId,
             IssuedByUserId = userId,
             KeyType = AccessKeyType.Guest,
             Status = AccessKeyStatus.Active,
-            Token = Guid.NewGuid().ToString("N"),
+            Token = token,
             ExpiresOn = request.ExpiresOn
         };
 
         var addResult = await _accessKeyRepository.AddAsync(accessKey);
-        return addResult;
+        if (!addResult.IsSuccess)
+        {
+            return Result<CreateGuestAccessResponse>.Failure(addResult.Errors);
+        }
+
+        var response = new CreateGuestAccessResponse
+        {
+            Id = addResult.Value,
+            Token = token,
+            ExpiresOn = request.ExpiresOn
+        };
+
+        return Result<CreateGuestAccessResponse>.Success(response);
     }
 
     public async Task<Result> RevokeAccessAsync(int accessId, int userId)
