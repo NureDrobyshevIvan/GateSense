@@ -58,5 +58,11 @@ public class IoTController : ControllerBase
             failure: ApiResults.ToProblemDetails
         );
     }
+
+    [HttpGet("test")]
+    public IActionResult Test()
+    {
+        return Ok(new { message = "IoT controller is working", timestamp = DateTime.UtcNow });
+    }
 }
 

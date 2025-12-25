@@ -13481,3 +13481,16 @@ WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
 SELECT d."Id", d."CreatedOn", d."DeviceType", d."FirmwareVersion", d."GarageId", d."LastHeartbeatOn", d."LastModifiedOn", d."SerialNumber", d."Status"
 FROM "Devices" AS d
 WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
+2025-12-25 16:22:03.246 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT d."Id", d."CreatedOn", d."DeviceType", d."FirmwareVersion", d."GarageId", d."LastHeartbeatOn", d."LastModifiedOn", d."SerialNumber", d."Status"
+FROM "Devices" AS d
+WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
+2025-12-25 16:23:03.301 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT d."Id", d."CreatedOn", d."DeviceType", d."FirmwareVersion", d."GarageId", d."LastHeartbeatOn", d."LastModifiedOn", d."SerialNumber", d."Status"
+FROM "Devices" AS d
+WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
+2025-12-25 16:24:03.390 +02:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT d."Id", d."CreatedOn", d."DeviceType", d."FirmwareVersion", d."GarageId", d."LastHeartbeatOn", d."LastModifiedOn", d."SerialNumber", d."Status"
+FROM "Devices" AS d
+WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
+2025-12-25 16:24:08.395 +02:00 [INF] Application is shutting down...
