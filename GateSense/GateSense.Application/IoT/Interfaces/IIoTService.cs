@@ -1,3 +1,4 @@
+using Domain.Models.DTOS.Gates;
 using Domain.Models.DTOS.Sensors;
 using Infrastructure.Common.ResultPattern;
 
@@ -8,5 +9,7 @@ public interface IIoTService
     Task<Result> SubmitSensorDataAsync(SensorDataSubmissionRequest request);
     
     Task<Result> SendHeartbeatAsync(string serialNumber);
+    
+    Task<Result<GateStateResponse>> GetGateStateBySerialNumberAsync(string serialNumber);
 }
 

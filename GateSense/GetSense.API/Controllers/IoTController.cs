@@ -41,5 +41,20 @@ public class IoTController : ControllerBase
             failure: ApiResults.ToProblemDetails
         );
     }
+
+    [HttpGet("gate-state")]
+    public async Task<IActionResult> GetGateState([FromQuery] string serialNumber)
+    {
+        if (string.IsNullOrWhiteSpace(serialNumber))
+        {
+            return BadRequest(new { error = "SerialNumber is required" });
+        }
+
+        var result = await _iotService.GetGateStateBySerialNumberAsync(serialNumber);
+        return result.Match(
+            successStatusCode: StatusCodes.Status200OK,
+            failure: ApiResults.ToProblemDetails
+        );
+    }
 }
 
