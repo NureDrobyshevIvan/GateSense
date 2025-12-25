@@ -59,7 +59,23 @@ public static class ConfigureBuilder
 
         services.AddDbContext<ApplicationDbContext>(opts =>
         {
-            opts.UseNpgsql(builder.Configuration.GetConnectionString("DataContext"));
+            var connectionString = builder.Configuration.GetConnectionString("DataContext");
+            
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+                if (!string.IsNullOrEmpty(databaseUrl))
+                {
+                    connectionString = ConvertRailwayDatabaseUrl(databaseUrl);
+                }
+            }
+            
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new InvalidOperationException("ConnectionString 'DataContext' is not configured. Please set ConnectionStrings__DataContext environment variable or DATABASE_URL.");
+            }
+            
+            opts.UseNpgsql(connectionString);
         });
 
         services.AddIdentity<ApplicationUser, IdentityRole<int>>(options =>
@@ -229,5 +245,27 @@ public static class ConfigureBuilder
                 }
             });
         });
+    }
+
+    private static string ConvertRailwayDatabaseUrl(string databaseUrl)
+    {
+        if (string.IsNullOrEmpty(databaseUrl))
+            return string.Empty;
+
+        if (databaseUrl.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase) ||
+            databaseUrl.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase))
+        {
+            var uri = new Uri(databaseUrl);
+            var userInfo = uri.UserInfo.Split(':');
+            var username = Uri.UnescapeDataString(userInfo[0]);
+            var password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : string.Empty;
+            var host = uri.Host;
+            var port = uri.Port > 0 ? uri.Port : 5432;
+            var database = uri.AbsolutePath.TrimStart('/');
+
+            return $"Host={host};Port={port};Database={database};Username={username};Password={password};TcpKeepAlive=True;SSL Mode=Require;Trust Server Certificate=true";
+        }
+
+        return databaseUrl;
     }
 }
