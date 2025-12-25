@@ -190,6 +190,14 @@ public class AuthService : IAuthService
                 return Result.Failure(UserErrors.UserNotCreatedError(userResult.Errors.First().Description));
             }
 
+            appUser.EmailConfirmed = true;
+            var updateResult = await _userManager.UpdateAsync(appUser);
+            if (!updateResult.Succeeded)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return Result.Failure(UserErrors.UserNotCreatedError("Failed to confirm email"));
+            }
+
             var resRolesResult = await _roleService.AddToRolesAsync(appUser, UserRoles.User);
 
 
@@ -217,11 +225,6 @@ public class AuthService : IAuthService
         if (user is null)
         {
             return Result<LoginResponse>.Failure(UserErrors.UserNotFoundError());
-        }
-
-        if (!await _userManager.IsEmailConfirmedAsync(user))
-        {
-            return Result<LoginResponse>.Failure(UserErrors.UserEmailNotConfirmed());
         }
 
         var result = await _userManager.CheckPasswordAsync(user, loginModel.Password);
