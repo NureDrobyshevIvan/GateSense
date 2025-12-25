@@ -126,22 +126,26 @@ public static class ConfigureBuilder
             throw new InvalidOperationException("AudienceTokenConfig section is not configured. Please set AudienceTokenConfig__JwtKey, AudienceTokenConfig__JwtIssuer, and AudienceTokenConfig__JwtAudience environment variables.");
         }
 
-        if (string.IsNullOrWhiteSpace(jwtConfig.JwtKey))
+        var jwtKey = jwtConfig.JwtKey ?? string.Empty;
+        var jwtIssuer = jwtConfig.JwtIssuer ?? string.Empty;
+        var jwtAudience = jwtConfig.JwtAudience ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(jwtKey))
         {
             throw new InvalidOperationException("JWT Key is not configured. Please set AudienceTokenConfig__JwtKey environment variable (minimum 32 characters).");
         }
 
-        if (jwtConfig.JwtKey.Length < 32)
+        if (jwtKey.Length < 32)
         {
-            throw new InvalidOperationException($"JWT Key must be at least 32 characters long. Current length: {jwtConfig.JwtKey.Length}. Please set AudienceTokenConfig__JwtKey environment variable.");
+            throw new InvalidOperationException($"JWT Key must be at least 32 characters long. Current length: {jwtKey.Length}. Please set AudienceTokenConfig__JwtKey environment variable.");
         }
 
-        if (string.IsNullOrWhiteSpace(jwtConfig.JwtIssuer))
+        if (string.IsNullOrWhiteSpace(jwtIssuer))
         {
             throw new InvalidOperationException("JWT Issuer is not configured. Please set AudienceTokenConfig__JwtIssuer environment variable.");
         }
 
-        if (string.IsNullOrWhiteSpace(jwtConfig.JwtAudience))
+        if (string.IsNullOrWhiteSpace(jwtAudience))
         {
             throw new InvalidOperationException("JWT Audience is not configured. Please set AudienceTokenConfig__JwtAudience environment variable.");
         }
@@ -156,14 +160,15 @@ public static class ConfigureBuilder
             .AddJwtBearer(o =>
             {
                 o.RequireHttpsMetadata = false;
+                
                 o.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.JwtKey)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
                     ValidateIssuer = true,
-                    ValidIssuer = jwtConfig.JwtIssuer,
+                    ValidIssuer = jwtIssuer,
                     ValidateAudience = true,
-                    ValidAudience = jwtConfig.JwtAudience,
+                    ValidAudience = jwtAudience,
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 };

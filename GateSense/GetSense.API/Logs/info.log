@@ -13405,3 +13405,27 @@ WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
 SELECT d."Id", d."CreatedOn", d."DeviceType", d."FirmwareVersion", d."GarageId", d."LastHeartbeatOn", d."LastModifiedOn", d."SerialNumber", d."Status"
 FROM "Devices" AS d
 WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
+2025-12-25 16:02:59.886 +02:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT d."Id", d."CreatedOn", d."DeviceType", d."FirmwareVersion", d."GarageId", d."LastHeartbeatOn", d."LastModifiedOn", d."SerialNumber", d."Status"
+FROM "Devices" AS d
+WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
+2025-12-25 16:04:00.027 +02:00 [INF] Executed DbCommand (10ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT d."Id", d."CreatedOn", d."DeviceType", d."FirmwareVersion", d."GarageId", d."LastHeartbeatOn", d."LastModifiedOn", d."SerialNumber", d."Status"
+FROM "Devices" AS d
+WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
+2025-12-25 16:05:01.155 +02:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT d."Id", d."CreatedOn", d."DeviceType", d."FirmwareVersion", d."GarageId", d."LastHeartbeatOn", d."LastModifiedOn", d."SerialNumber", d."Status"
+FROM "Devices" AS d
+WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
+2025-12-25 16:06:02.299 +02:00 [INF] Executed DbCommand (9ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT d."Id", d."CreatedOn", d."DeviceType", d."FirmwareVersion", d."GarageId", d."LastHeartbeatOn", d."LastModifiedOn", d."SerialNumber", d."Status"
+FROM "Devices" AS d
+WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
+2025-12-25 16:07:02.390 +02:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT d."Id", d."CreatedOn", d."DeviceType", d."FirmwareVersion", d."GarageId", d."LastHeartbeatOn", d."LastModifiedOn", d."SerialNumber", d."Status"
+FROM "Devices" AS d
+WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
+2025-12-25 16:08:02.439 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT d."Id", d."CreatedOn", d."DeviceType", d."FirmwareVersion", d."GarageId", d."LastHeartbeatOn", d."LastModifiedOn", d."SerialNumber", d."Status"
+FROM "Devices" AS d
+WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
