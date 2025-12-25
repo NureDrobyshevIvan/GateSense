@@ -5,6 +5,14 @@ ApiClient::ApiClient() {
   baseUrl = String(API_BASE_URL);
   serialNumber = String(DEVICE_SERIAL_NUMBER);
   garageId = GARAGE_ID;
+  
+  if (isHttps()) {
+    client.setInsecure();
+  }
+}
+
+bool ApiClient::isHttps() {
+  return baseUrl.startsWith("https://");
 }
 
 bool ApiClient::begin() {
@@ -60,7 +68,11 @@ bool ApiClient::sendHeartbeat() {
   serializeJson(doc, jsonBody);
   
   http.setTimeout(5000);
-  http.begin(endpoint);
+  if (isHttps()) {
+    http.begin(client, endpoint);
+  } else {
+    http.begin(endpoint);
+  }
   http.addHeader("Content-Type", "application/json");
   
   int httpCode = http.POST(jsonBody);
@@ -90,7 +102,11 @@ GateState ApiClient::getGateState() {
   String endpoint = String(API_BASE_URL) + String(API_GATE_STATE_ENDPOINT) + "?serialNumber=" + serialNumber;
   
   http.setTimeout(5000);
-  http.begin(endpoint);
+  if (isHttps()) {
+    http.begin(client, endpoint);
+  } else {
+    http.begin(endpoint);
+  }
   int httpCode = http.GET();
   
   if (httpCode == 200) {
@@ -115,7 +131,6 @@ GateState ApiClient::getGateState() {
     http.end();
     Serial.print("Connection failed. Error code: ");
     Serial.println(httpCode);
-    Serial.println("Note: In Wokwi, 'localhost' doesn't work. Use ngrok or public IP.");
   }
   
   return gateState;

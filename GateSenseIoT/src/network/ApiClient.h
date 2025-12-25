@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
 
 struct GateState {
@@ -22,9 +23,11 @@ public:
   
 private:
   HTTPClient http;
+  WiFiClientSecure client;
   String baseUrl;
   String serialNumber;
   int garageId;
+  bool isHttps();
 };
 
 #endif

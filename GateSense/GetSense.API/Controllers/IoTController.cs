@@ -2,12 +2,14 @@ using Domain.Models.DTOS.IoT;
 using Domain.Models.DTOS.Sensors;
 using GateSense.Application.IoT.Interfaces;
 using GetSense.API.ApiResult;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GetSense.API.Controllers;
 
 [ApiController]
 [Route("iot")]
+[AllowAnonymous]
 public class IoTController : ControllerBase
 {
     private readonly IIoTService _iotService;

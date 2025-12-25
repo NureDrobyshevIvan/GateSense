@@ -6,18 +6,13 @@
 #define WIFI_PASSWORD ""
 
 // API налаштування
-// Для Wokwi: використовуйте ngrok або публічну адресу
-// Для реального пристрою: використовуйте IP адресу вашого сервера
-// Для задеплоєного сервера: використовуйте публічну URL адресу
-#define API_BASE_URL "http://localhost:5066"
+// Railway production URL
+#define API_BASE_URL "https://gatesense-production.up.railway.app"
 
 // Приклади для різних сценаріїв:
+// Для локальної розробки: #define API_BASE_URL "http://localhost:5066"
 // Для ngrok: #define API_BASE_URL "https://abc123.ngrok.io"
 // Для локальної мережі: #define API_BASE_URL "http://192.168.1.100:5066"
-// Для Azure: #define API_BASE_URL "https://your-app.azurewebsites.net"
-// Для AWS: #define API_BASE_URL "https://your-api.execute-api.region.amazonaws.com"
-// Для Heroku: #define API_BASE_URL "https://your-app.herokuapp.com"
-// Для власного домену: #define API_BASE_URL "https://api.yourdomain.com"
 
 #define API_HEARTBEAT_ENDPOINT "/iot/heartbeat"
 #define API_GATE_STATE_ENDPOINT "/iot/gate-state"
