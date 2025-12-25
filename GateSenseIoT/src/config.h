@@ -8,12 +8,6 @@
 // API налаштування
 // Railway production URL
 #define API_BASE_URL "https://gatesense-production.up.railway.app"
-
-// Приклади для різних сценаріїв:
-// Для локальної розробки: #define API_BASE_URL "http://localhost:5066"
-// Для ngrok: #define API_BASE_URL "https://abc123.ngrok.io"
-// Для локальної мережі: #define API_BASE_URL "http://192.168.1.100:5066"
-
 #define API_HEARTBEAT_ENDPOINT "/iot/heartbeat"
 #define API_GATE_STATE_ENDPOINT "/iot/gate-state"
 #define API_SENSOR_DATA_ENDPOINT "/iot/sensor-data"
