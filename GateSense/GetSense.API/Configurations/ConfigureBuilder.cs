@@ -42,6 +42,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace GetSense.API.Configurations;
 
@@ -53,6 +54,14 @@ public static class ConfigureBuilder
         var jwtConfig = builder.Configuration.GetSection("AudienceTokenConfig").Get<AudienceTokenConfig>();
 
         services.AddExceptionHandler<GlobalExceptionHandler>();
+
+        services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor | 
+                                       Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
+        });
 
         services.AddSerilog(s =>
             s.ReadFrom.Configuration(builder.Configuration));

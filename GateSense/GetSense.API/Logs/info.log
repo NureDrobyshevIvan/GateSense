@@ -13333,3 +13333,23 @@ WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
 SELECT d."Id", d."CreatedOn", d."DeviceType", d."FirmwareVersion", d."GarageId", d."LastHeartbeatOn", d."LastModifiedOn", d."SerialNumber", d."Status"
 FROM "Devices" AS d
 WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
+2025-12-25 15:44:50.536 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT d."Id", d."CreatedOn", d."DeviceType", d."FirmwareVersion", d."GarageId", d."LastHeartbeatOn", d."LastModifiedOn", d."SerialNumber", d."Status"
+FROM "Devices" AS d
+WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
+2025-12-25 15:45:50.591 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT d."Id", d."CreatedOn", d."DeviceType", d."FirmwareVersion", d."GarageId", d."LastHeartbeatOn", d."LastModifiedOn", d."SerialNumber", d."Status"
+FROM "Devices" AS d
+WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
+2025-12-25 15:46:50.638 +02:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT d."Id", d."CreatedOn", d."DeviceType", d."FirmwareVersion", d."GarageId", d."LastHeartbeatOn", d."LastModifiedOn", d."SerialNumber", d."Status"
+FROM "Devices" AS d
+WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
+2025-12-25 15:47:50.717 +02:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT d."Id", d."CreatedOn", d."DeviceType", d."FirmwareVersion", d."GarageId", d."LastHeartbeatOn", d."LastModifiedOn", d."SerialNumber", d."Status"
+FROM "Devices" AS d
+WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL
+2025-12-25 15:48:50.756 +02:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT d."Id", d."CreatedOn", d."DeviceType", d."FirmwareVersion", d."GarageId", d."LastHeartbeatOn", d."LastModifiedOn", d."SerialNumber", d."Status"
+FROM "Devices" AS d
+WHERE d."Status" = 'Online' AND d."LastHeartbeatOn" IS NOT NULL

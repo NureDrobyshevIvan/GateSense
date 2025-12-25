@@ -12,11 +12,12 @@ public static class ConfigureApp
 
         app.UseExceptionHandler();
 
-        if (app.Environment.IsDevelopment())
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
         {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "GateSense API v1");
+            c.RoutePrefix = "swagger";
+        });
 
         using var scope = app.Services.CreateScope();
         var scopedServices = scope.ServiceProvider;
@@ -27,19 +28,37 @@ public static class ConfigureApp
         var seeder = new DatabaseSeeder(scope);
         await seeder.SeedAsync();
 
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseForwardedHeaders();
+        }
         
         app.UseHttpsRedirection();
         
         app.UseRouting();
         
-        app.UseCors(options =>
+        var frontEndUrl = config.GetSection("ApplicationUrls")["FrontEnd"];
+        if (!string.IsNullOrEmpty(frontEndUrl))
         {
-            options
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .AllowCredentials()
-                .WithOrigins(config.GetSection("ApplicationURLs")["FrontEnd"] ?? "monkey sigma");
-        });
+            app.UseCors(options =>
+            {
+                options
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials()
+                    .WithOrigins(frontEndUrl);
+            });
+        }
+        else
+        {
+            app.UseCors(options =>
+            {
+                options
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowAnyOrigin();
+            });
+        }
         
         app.UseAuthentication();
         app.UseAuthorization();
