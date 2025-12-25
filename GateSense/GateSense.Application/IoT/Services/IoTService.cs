@@ -101,20 +101,45 @@ public class IoTService : IIoTService
         if (!deviceResult.IsSuccess)
         {
             // Device doesn't exist - create it automatically
-            // Try to find or use default garage (ID = 1)
+            // Try to find or create default garage (ID = 1)
             var garageResult = await _garageRepository.GetSingleByConditionAsync(g => g.Id == 1);
             
+            Garage garage;
             if (!garageResult.IsSuccess)
             {
-                return Result.Failure(Error.NotFound("iot.GARAGE_NOT_FOUND", 
-                    "Default garage (ID=1) not found. Please create a garage first."));
+                // Try to find any existing garage first
+                var anyGarageResult = await _garageRepository.GetListByConditionAsync(g => true);
+                if (anyGarageResult.IsSuccess && anyGarageResult.Value.Any())
+                {
+                    garage = anyGarageResult.Value.First();
+                }
+                else
+                {
+                    // Create default garage if none exists
+                    garage = new Garage
+                    {
+                        Name = "Default Garage",
+                        Address = "Auto-created for IoT devices"
+                    };
+
+                    var garageAddResult = await _garageRepository.AddAsync(garage);
+                    if (!garageAddResult.IsSuccess)
+                    {
+                        return Result.Failure(Error.Internal("iot.GARAGE_CREATION_FAILED", 
+                            "Failed to create default garage."));
+                    }
+                }
+            }
+            else
+            {
+                garage = garageResult.Value;
             }
 
             // Create new device
             device = new IoTDevice
             {
                 SerialNumber = serialNumber,
-                GarageId = 1,
+                GarageId = garage.Id,
                 DeviceType = DeviceType.GateController,
                 Status = DeviceStatus.Online,
                 LastHeartbeatOn = DateTimeOffset.UtcNow
@@ -159,28 +184,18 @@ public class IoTService : IIoTService
 
         if (!deviceResult.IsSuccess)
         {
-            // Device doesn't exist - try to create it automatically
-            var garageResult = await _garageRepository.GetSingleByConditionAsync(g => g.Id == 1);
-            
-            if (!garageResult.IsSuccess)
+            // Device doesn't exist - return Unknown state
+            return Result<GateStateResponse>.Success(new GateStateResponse
             {
-                // Return default response if garage doesn't exist
-                return Result<GateStateResponse>.Success(new GateStateResponse
-                {
-                    GarageId = 0,
-                    State = "Unknown",
-                    LastAction = null,
-                    LastActionTime = null
-                });
-            }
+                GarageId = 0,
+                State = "Unknown",
+                LastAction = null,
+                LastActionTime = null
+            });
+        }
 
-            garageId = 1;
-        }
-        else
-        {
-            var device = deviceResult.Value;
-            garageId = device.GarageId;
-        }
+        var device = deviceResult.Value;
+        garageId = device.GarageId;
 
         var eventsResult = await _gateEventRepository.GetListByConditionAsync(e => e.GarageId == garageId);
 
