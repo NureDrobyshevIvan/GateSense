@@ -125,7 +125,7 @@ public class IoTService : IIoTService
                     var garageAddResult = await _garageRepository.AddAsync(garage);
                     if (!garageAddResult.IsSuccess)
                     {
-                        return Result.Failure(Error.Internal("iot.GARAGE_CREATION_FAILED", 
+                        return Result.Failure(Error.InternalServerError("iot.GARAGE_CREATION_FAILED", 
                             "Failed to create default garage."));
                     }
                 }
