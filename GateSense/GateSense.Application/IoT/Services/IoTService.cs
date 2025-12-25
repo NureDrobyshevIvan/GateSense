@@ -100,39 +100,30 @@ public class IoTService : IIoTService
 
         if (!deviceResult.IsSuccess)
         {
-            // Device doesn't exist - create it automatically
-            // Try to find or create default garage (ID = 1)
-            var garageResult = await _garageRepository.GetSingleByConditionAsync(g => g.Id == 1);
+            // Device doesn't exist - try to find any existing garage
+            var anyGarageResult = await _garageRepository.GetListByConditionAsync(g => true);
             
             Garage garage;
-            if (!garageResult.IsSuccess)
+            if (!anyGarageResult.IsSuccess || !anyGarageResult.Value.Any())
             {
-                // Try to find any existing garage first
-                var anyGarageResult = await _garageRepository.GetListByConditionAsync(g => true);
-                if (anyGarageResult.IsSuccess && anyGarageResult.Value.Any())
+                // Create default garage if none exists (without owner - first user to assign access will become owner)
+                garage = new Garage
                 {
-                    garage = anyGarageResult.Value.First();
-                }
-                else
-                {
-                    // Create default garage if none exists
-                    garage = new Garage
-                    {
-                        Name = "Default Garage",
-                        Address = "Auto-created for IoT devices"
-                    };
+                    Name = "Default Garage",
+                    Address = "Auto-created for IoT devices"
+                };
 
-                    var garageAddResult = await _garageRepository.AddAsync(garage);
-                    if (!garageAddResult.IsSuccess)
-                    {
-                        return Result.Failure(Error.InternalServerError("iot.GARAGE_CREATION_FAILED", 
-                            "Failed to create default garage."));
-                    }
+                var garageAddResult = await _garageRepository.AddAsync(garage);
+                if (!garageAddResult.IsSuccess)
+                {
+                    return Result.Failure(Error.InternalServerError("iot.GARAGE_CREATION_FAILED", 
+                        "Failed to create default garage."));
                 }
             }
             else
             {
-                garage = garageResult.Value;
+                // Use the first available garage
+                garage = anyGarageResult.Value.First();
             }
 
             // Create new device

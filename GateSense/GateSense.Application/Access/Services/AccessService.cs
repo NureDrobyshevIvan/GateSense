@@ -66,10 +66,32 @@ public class AccessService : IAccessService
 
     public async Task<Result> AssignFamilyAccessAsync(AssignFamilyAccessRequest request, int userId)
     {
-        var guard = await EnsureGarageOwned(request.GarageId, userId);
-        if (!guard.IsSuccess)
+        var garageResult = await _garageRepository.GetSingleByConditionAsync(g => g.Id == request.GarageId);
+        if (!garageResult.IsSuccess)
         {
-            return guard;
+            return Result.Failure(GarageNotFound);
+        }
+
+        var garage = garageResult.Value;
+
+        // If garage has no owner, assign the current user as owner
+        if (garage.OwnerId == null)
+        {
+            garage.OwnerId = userId;
+            var updateResult = await _garageRepository.UpdateAsync(garage);
+            if (!updateResult.IsSuccess)
+            {
+                return updateResult;
+            }
+        }
+        else
+        {
+            // If garage has owner, check if current user is the owner
+            var guard = await EnsureGarageOwned(request.GarageId, userId);
+            if (!guard.IsSuccess)
+            {
+                return guard;
+            }
         }
 
         var familyUser = await _userManager.FindByEmailAsync(request.Email);
