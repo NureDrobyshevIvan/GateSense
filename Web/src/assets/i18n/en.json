@@ -1,0 +1,118 @@
+{
+  "app": {
+    "title": "GateSense",
+    "logout": "Logout"
+  },
+  "language": {
+    "label": "Language",
+    "uk": "Українська",
+    "en": "English"
+  },
+  "auth": {
+    "login": "Sign in",
+    "register": "Sign up",
+    "loginCta": "Sign in",
+    "registerCta": "Create account",
+    "login_field": "Username or email",
+    "password": "Password",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "userName": "Username",
+    "noAccount": "Create account",
+    "haveAccount": "Already have an account",
+    "errorRequired": "All fields are required",
+    "errorInvalid": "Invalid login or password"
+  },
+  "nav": {
+    "myGarages": "My garages",
+    "events": "Events",
+    "access": "Access",
+    "admin": "Admin",
+    "users": "Users",
+    "allGarages": "All garages",
+    "backup": "Backup"
+  },
+  "garages": {
+    "title": "My garages",
+    "empty": "You don't have any garages yet",
+    "add": "Add garage",
+    "name": "Name",
+    "address": "Address",
+    "create": "Create",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "confirmDelete": "Delete this garage?"
+  },
+  "garage": {
+    "state": "State",
+    "open": "Open",
+    "closed": "Closed",
+    "unknown": "Unknown",
+    "openGate": "Open",
+    "closeGate": "Close",
+    "lastAction": "Last action",
+    "sensors": "Latest sensor readings",
+    "noSensorData": "No data yet",
+    "alert": "Active alert",
+    "events": "Event log",
+    "access": "Access management"
+  },
+  "events": {
+    "title": "Event log",
+    "empty": "No events yet",
+    "time": "Time",
+    "action": "Action",
+    "trigger": "Trigger",
+    "result": "Result"
+  },
+  "access": {
+    "title": "Access management",
+    "members": "Users with access",
+    "addFamily": "Add family member",
+    "createGuest": "Create guest key",
+    "familyEmail": "User email",
+    "guestName": "Recipient name",
+    "guestExpires": "Expires on (optional)",
+    "createdToken": "Token created",
+    "revoke": "Revoke",
+    "empty": "No access granted"
+  },
+  "admin": {
+    "users": {
+      "title": "Users",
+      "userName": "Username",
+      "email": "Email",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "roles": "Roles",
+      "actions": "Actions",
+      "edit": "Edit",
+      "delete": "Delete",
+      "makeAdmin": "Make admin",
+      "removeAdmin": "Revoke admin",
+      "confirmDelete": "Delete user?"
+    },
+    "garages": {
+      "title": "All garages",
+      "name": "Name",
+      "address": "Address",
+      "owner": "Owner",
+      "actions": "Actions"
+    },
+    "backup": {
+      "title": "Backup",
+      "export": "Export JSON",
+      "exportHint": "Download a full JSON dump of system data",
+      "import": "Import JSON",
+      "importHint": "Upload a previously exported JSON file to restore system state",
+      "importSuccess": "Import completed. Records added: {{count}}",
+      "importError": "Import error"
+    }
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading..."
+  }
+}

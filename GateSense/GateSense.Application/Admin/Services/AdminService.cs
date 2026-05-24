@@ -34,6 +34,46 @@ public class AdminService : IAdminService
         _unitOfWork = unitOfWork;
     }
 
+    public async Task<Result> AssignRoleAsync(int userId, string role)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            return Result.Failure(UserNotFound);
+        }
+        if (await _userManager.IsInRoleAsync(user, role))
+        {
+            return Result.Success();
+        }
+        var result = await _userManager.AddToRoleAsync(user, role);
+        if (!result.Succeeded)
+        {
+            return Result.Failure(Error.Validation("admin.ROLE_ASSIGN_FAILED",
+                string.Join("; ", result.Errors.Select(e => e.Description))));
+        }
+        return Result.Success();
+    }
+
+    public async Task<Result> RemoveRoleAsync(int userId, string role)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            return Result.Failure(UserNotFound);
+        }
+        if (!await _userManager.IsInRoleAsync(user, role))
+        {
+            return Result.Success();
+        }
+        var result = await _userManager.RemoveFromRoleAsync(user, role);
+        if (!result.Succeeded)
+        {
+            return Result.Failure(Error.Validation("admin.ROLE_REMOVE_FAILED",
+                string.Join("; ", result.Errors.Select(e => e.Description))));
+        }
+        return Result.Success();
+    }
+
     public async Task<Result<IEnumerable<AdminUserResponse>>> GetAllUsersAsync()
     {
         var users = await _userManager.Users.ToListAsync();

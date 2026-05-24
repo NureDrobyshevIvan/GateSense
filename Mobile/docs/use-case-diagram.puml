@@ -1,0 +1,57 @@
+@startuml UseCaseDiagram
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Користувач" as User
+actor "GateSense Backend" as Backend
+
+rectangle "GateSense Mobile" {
+  usecase "Реєстрація" as UC_Register
+  usecase "Вхід (логін)" as UC_Login
+  usecase "Вийти з системи" as UC_Logout
+  usecase "Переглянути\nсвої гаражі" as UC_ListGarages
+  usecase "Створити гараж" as UC_CreateGarage
+  usecase "Видалити гараж" as UC_DeleteGarage
+  usecase "Відкрити/закрити\nворота" as UC_ToggleGate
+  usecase "Переглянути\nстан воріт" as UC_GateState
+  usecase "Переглянути показники\nсенсорів" as UC_Sensors
+  usecase "Отримати\nалерти безпеки" as UC_Alerts
+  usecase "Видати\nсімейний доступ" as UC_AssignFamily
+  usecase "Створити\nгостьовий ключ" as UC_CreateGuest
+  usecase "Відкликати доступ" as UC_RevokeAccess
+  usecase "Переглянути\nжурнал подій" as UC_EventLog
+}
+
+User --> UC_Register
+User --> UC_Login
+User --> UC_Logout
+User --> UC_ListGarages
+User --> UC_CreateGarage
+User --> UC_DeleteGarage
+User --> UC_ToggleGate
+User --> UC_GateState
+User --> UC_Sensors
+User --> UC_Alerts
+User --> UC_AssignFamily
+User --> UC_CreateGuest
+User --> UC_RevokeAccess
+User --> UC_EventLog
+
+UC_Register --> Backend
+UC_Login --> Backend
+UC_Logout --> Backend
+UC_ListGarages --> Backend
+UC_CreateGarage --> Backend
+UC_DeleteGarage --> Backend
+UC_ToggleGate --> Backend
+UC_GateState --> Backend
+UC_Sensors --> Backend
+UC_Alerts --> Backend
+UC_AssignFamily --> Backend
+UC_CreateGuest --> Backend
+UC_RevokeAccess --> Backend
+UC_EventLog --> Backend
+
+UC_ToggleGate ..> UC_GateState : <<include>>\n(оновлення\nстану)
+UC_Sensors ..> UC_Alerts : <<include>>
+@enduml

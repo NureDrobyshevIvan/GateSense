@@ -1,0 +1,118 @@
+{
+  "app": {
+    "title": "GateSense",
+    "logout": "Вийти"
+  },
+  "language": {
+    "label": "Мова",
+    "uk": "Українська",
+    "en": "English"
+  },
+  "auth": {
+    "login": "Вхід",
+    "register": "Реєстрація",
+    "loginCta": "Увійти",
+    "registerCta": "Зареєструватись",
+    "login_field": "Логін або email",
+    "password": "Пароль",
+    "firstName": "Ім'я",
+    "lastName": "Прізвище",
+    "email": "Email",
+    "userName": "Логін",
+    "noAccount": "Створити акаунт",
+    "haveAccount": "Уже маю акаунт",
+    "errorRequired": "Заповніть усі поля",
+    "errorInvalid": "Невірний логін або пароль"
+  },
+  "nav": {
+    "myGarages": "Мої гаражі",
+    "events": "Журнал",
+    "access": "Доступи",
+    "admin": "Адмінка",
+    "users": "Користувачі",
+    "allGarages": "Усі гаражі",
+    "backup": "Резервне копіювання"
+  },
+  "garages": {
+    "title": "Мої гаражі",
+    "empty": "У вас поки що немає гаражів",
+    "add": "Додати гараж",
+    "name": "Назва",
+    "address": "Адреса",
+    "create": "Створити",
+    "cancel": "Скасувати",
+    "delete": "Видалити",
+    "confirmDelete": "Видалити цей гараж?"
+  },
+  "garage": {
+    "state": "Стан",
+    "open": "Відкрито",
+    "closed": "Зачинено",
+    "unknown": "Невідомо",
+    "openGate": "Відкрити",
+    "closeGate": "Закрити",
+    "lastAction": "Остання дія",
+    "sensors": "Останні показники сенсорів",
+    "noSensorData": "Даних ще немає",
+    "alert": "Активна тривога",
+    "events": "Журнал подій",
+    "access": "Керування доступом"
+  },
+  "events": {
+    "title": "Журнал подій",
+    "empty": "Подій ще не було",
+    "time": "Час",
+    "action": "Дія",
+    "trigger": "Ініціатор",
+    "result": "Результат"
+  },
+  "access": {
+    "title": "Керування доступом",
+    "members": "Користувачі з доступом",
+    "addFamily": "Додати члена сім'ї",
+    "createGuest": "Створити гостьовий ключ",
+    "familyEmail": "Email користувача",
+    "guestName": "Ім'я отримувача",
+    "guestExpires": "Дійсний до (опційно)",
+    "createdToken": "Токен створено",
+    "revoke": "Відкликати",
+    "empty": "Немає виданих доступів"
+  },
+  "admin": {
+    "users": {
+      "title": "Користувачі",
+      "userName": "Логін",
+      "email": "Email",
+      "firstName": "Ім'я",
+      "lastName": "Прізвище",
+      "roles": "Ролі",
+      "actions": "Дії",
+      "edit": "Редагувати",
+      "delete": "Видалити",
+      "makeAdmin": "Зробити адміном",
+      "removeAdmin": "Зняти права адміна",
+      "confirmDelete": "Видалити користувача?"
+    },
+    "garages": {
+      "title": "Усі гаражі",
+      "name": "Назва",
+      "address": "Адреса",
+      "owner": "Власник",
+      "actions": "Дії"
+    },
+    "backup": {
+      "title": "Резервне копіювання",
+      "export": "Експортувати JSON",
+      "exportHint": "Завантажити повний дамп даних системи у форматі JSON",
+      "import": "Імпортувати JSON",
+      "importHint": "Завантажити раніше експортований JSON-файл і відновити стан системи",
+      "importSuccess": "Імпорт завершено. Записів додано: {{count}}",
+      "importError": "Помилка імпорту"
+    }
+  },
+  "common": {
+    "save": "Зберегти",
+    "cancel": "Скасувати",
+    "loading": "Завантаження..."
+  }
+}

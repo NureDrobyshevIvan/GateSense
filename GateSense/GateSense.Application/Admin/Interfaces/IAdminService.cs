@@ -11,7 +11,9 @@ public interface IAdminService
     Task<Result<AdminUserResponse>> GetUserByIdAsync(int userId);
     Task<Result> UpdateUserAsync(int userId, AdminUpdateUserRequest request);
     Task<Result> DeleteUserAsync(int userId);
-    
+    Task<Result> AssignRoleAsync(int userId, string role);
+    Task<Result> RemoveRoleAsync(int userId, string role);
+
     Task<Result<IEnumerable<AdminGarageResponse>>> GetAllGaragesAsync();
     Task<Result<AdminGarageResponse>> GetGarageByIdAsync(int garageId);
     Task<Result> UpdateGarageAsync(int garageId, Domain.Models.DTOS.Garages.UpdateGarageRequest request);

@@ -136,11 +136,14 @@ bool ApiClient::sendSensorData(String sensorType, float value, String unit) {
   
   String endpoint = String(API_BASE_URL) + String(API_SENSOR_DATA_ENDPOINT);
   
-  unsigned long now = millis();
-  unsigned long seconds = now / 1000;
-  
-  char timestamp[30];
-  snprintf(timestamp, sizeof(timestamp), "2025-01-01T00:00:%02lu.000Z", seconds % 86400);
+  unsigned long totalSeconds = millis() / 1000;
+  unsigned long secOfDay = totalSeconds % 86400;
+  unsigned int hh = secOfDay / 3600;
+  unsigned int mm = (secOfDay / 60) % 60;
+  unsigned int ss = secOfDay % 60;
+
+  char timestamp[32];
+  snprintf(timestamp, sizeof(timestamp), "2025-01-01T%02u:%02u:%02u.000Z", hh, mm, ss);
   
   StaticJsonDocument<256> doc;
   doc["serialNumber"] = serialNumber;
@@ -161,8 +164,17 @@ bool ApiClient::sendSensorData(String sensorType, float value, String unit) {
   http.addHeader("Content-Type", "application/json");
   
   int httpCode = http.POST(jsonBody);
+  String responseBody = (httpCode > 0) ? http.getString() : String("(no response)");
   http.end();
-  
-  return (httpCode == 200 || httpCode == 201);
+
+  if (httpCode == 200 || httpCode == 201) {
+    return true;
+  }
+
+  Serial.print("sendSensorData failed. HTTP=");
+  Serial.print(httpCode);
+  Serial.print(" body=");
+  Serial.println(responseBody);
+  return false;
 }
 

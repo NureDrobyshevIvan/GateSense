@@ -4,7 +4,7 @@ namespace Infrastructure.Common.JWT;
 
 public interface ITokenService
 {
-    public string GenerateAuthToken(ApplicationUser user);
+    public string GenerateAuthToken(ApplicationUser user, string role);
     
     public RefreshTokenDTO GenerateRefreshToken();
 }

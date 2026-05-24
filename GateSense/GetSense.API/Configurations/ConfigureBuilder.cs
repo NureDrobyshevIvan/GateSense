@@ -238,6 +238,7 @@ public static class ConfigureBuilder
         services.AddScoped<ISensorService, SensorService>();
         services.AddScoped<ILogService, LogService>();
         services.AddScoped<IAdminService, AdminService>();
+        services.AddScoped<IBackupService, BackupService>();
         services.AddScoped(typeof(Infrastructure.Repository.Interfaces.IGenericRepository<Domain.Models.Auth.AccessToken>), typeof(Infrastructure.Repository.Services.GenericRepository<Domain.Models.Auth.AccessToken>));
         services.AddScoped(typeof(Infrastructure.Repository.Interfaces.IGenericRepository<Domain.Models.Auth.RefreshToken>), typeof(Infrastructure.Repository.Services.GenericRepository<Domain.Models.Auth.RefreshToken>));
         services.AddScoped(typeof(Infrastructure.Repository.Interfaces.IGenericRepository<GarageAccess>), typeof(Infrastructure.Repository.Services.GenericRepository<GarageAccess>));

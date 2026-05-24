@@ -1,0 +1,47 @@
+@startuml ActivityDiagram_OpenGate
+title Відкриття воріт через мобільний застосунок
+
+|Користувач|
+start
+:Натискає кнопку\nOpen/Close;
+
+|GarageDetailScreen|
+:Викликає vm.toggleGate();
+
+|GarageDetailViewModel|
+:Перевіряє поточний стан воріт;
+if (state == "Open"?) then (так)
+  :gateRepository.close(garageId);
+else (ні)
+  :gateRepository.open(garageId);
+endif
+
+|GateRepository|
+:apiService.openGate / closeGate;
+
+|AuthInterceptor|
+:Дочитує JWT з TokenStore;
+:Додає Authorization: Bearer <token>;
+
+|ApiClient (OkHttp)|
+:HTTPS POST\n/garages/{id}/gate/open|close;
+
+|Backend|
+:Перевіряє JWT;
+if (Користувач має доступ?) then (так)
+  :Записує GateEvent у БД;
+  :Повертає 200 OK;
+else (ні)
+  :Повертає 401/403;
+  stop
+endif
+
+|GarageDetailViewModel|
+:gateRepository.state(garageId);
+:Оновлює UI state;
+
+|GarageDetailScreen|
+:Перерендеровує кнопку\n(нова іконка та статус);
+
+stop
+@enduml

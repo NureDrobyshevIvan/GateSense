@@ -1,0 +1,88 @@
+@startuml ComponentDiagram
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+package "GateSense Android App" {
+
+  package "UI Layer (Jetpack Compose)" {
+    [LoginScreen]
+    [RegisterScreen]
+    [GaragesScreen]
+    [GarageDetailScreen]
+    [AccessScreen]
+    [EventLogScreen]
+    [GateSenseNavGraph]
+  }
+
+  package "Presentation (ViewModels)" {
+    [AuthViewModel]
+    [GaragesViewModel]
+    [GarageDetailViewModel]
+    [AccessViewModel]
+    [EventLogViewModel]
+  }
+
+  package "Domain / Repository" {
+    [AuthRepository]
+    [GarageRepository]
+    [GateRepository]
+    [SensorRepository]
+    [AccessRepository]
+    [LogRepository]
+  }
+
+  package "Data" {
+    [ApiService\n(Retrofit interface)] as ApiService
+    [ApiClient\n(OkHttp + JSON)] as ApiClient
+    [AuthInterceptor]
+    [TokenStore\n(DataStore)] as TokenStore
+  }
+
+  [GateSenseApp\n(Application)] as App
+  [ServiceLocator]
+}
+
+cloud "Backend\n(Railway)" as Cloud {
+  [REST API\n(ASP.NET Core)]
+  database "PostgreSQL"
+  [REST API\n(ASP.NET Core)] --> [PostgreSQL]
+}
+
+App --> ServiceLocator : init()
+GateSenseNavGraph --> [LoginScreen]
+GateSenseNavGraph --> [RegisterScreen]
+GateSenseNavGraph --> [GaragesScreen]
+GateSenseNavGraph --> [GarageDetailScreen]
+GateSenseNavGraph --> [AccessScreen]
+GateSenseNavGraph --> [EventLogScreen]
+
+[LoginScreen] --> [AuthViewModel]
+[RegisterScreen] --> [AuthViewModel]
+[GaragesScreen] --> [GaragesViewModel]
+[GarageDetailScreen] --> [GarageDetailViewModel]
+[AccessScreen] --> [AccessViewModel]
+[EventLogScreen] --> [EventLogViewModel]
+
+[AuthViewModel] --> [AuthRepository]
+[GaragesViewModel] --> [GarageRepository]
+[GaragesViewModel] --> [AuthRepository]
+[GarageDetailViewModel] --> [GarageRepository]
+[GarageDetailViewModel] --> [GateRepository]
+[GarageDetailViewModel] --> [SensorRepository]
+[AccessViewModel] --> [AccessRepository]
+[EventLogViewModel] --> [LogRepository]
+
+[AuthRepository] --> ApiService
+[AuthRepository] --> TokenStore
+[GarageRepository] --> ApiService
+[GateRepository] --> ApiService
+[SensorRepository] --> ApiService
+[AccessRepository] --> ApiService
+[LogRepository] --> ApiService
+
+ApiService ..> ApiClient
+ApiClient --> AuthInterceptor
+AuthInterceptor --> TokenStore : <<reads JWT>>
+
+ApiClient ..> [REST API\n(ASP.NET Core)] : HTTPS / JSON
+@enduml

@@ -1,0 +1,42 @@
+@startuml StateDiagram_Auth
+title Стани автентифікації мобільного застосунку
+
+[*] --> Anonymous : Старт додатку\n(токен не збережено)
+
+state Anonymous {
+  Anonymous : Користувач не авторизований
+  Anonymous : Доступний лише екран Login/Register
+}
+
+state Authenticating {
+  Authenticating : POST /Auth/login
+  Authenticating : Loading state у LoginScreen
+}
+
+state Authenticated {
+  Authenticated : JWT збережено в DataStore
+  Authenticated : Доступні всі екрани:\nGarages, Gate, Access, Logs
+}
+
+state Refreshing {
+  Refreshing : 401 -> GET /Auth/refresh
+  Refreshing : Спроба отримати новий accessToken
+}
+
+state Failed {
+  Failed : Показ помилки користувачу
+}
+
+Anonymous --> Authenticating : login(login, password)
+Authenticating --> Authenticated : success\n(збережено accessToken)
+Authenticating --> Failed : 401 / network error
+Failed --> Anonymous : reset()
+
+Authenticated --> Refreshing : 401 на захищеному запиті
+Refreshing --> Authenticated : новий токен
+Refreshing --> Anonymous : refresh-токен недійсний
+
+Authenticated --> Anonymous : logout()\n(TokenStore.clear)
+
+Anonymous --> [*] : Закриття додатку
+@enduml

@@ -17,7 +17,7 @@ public class TokenService : ITokenService
         _audienceTokenConfig = config.GetSection("AudienceTokenConfig").Get<AudienceTokenConfig>();
     }
 
-    public string GenerateAuthToken(ApplicationUser user)
+    public string GenerateAuthToken(ApplicationUser user, string role)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_audienceTokenConfig.JwtKey));
 
@@ -29,7 +29,8 @@ public class TokenService : ITokenService
             [
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
-                new Claim(ClaimTypes.Name, user.UserName ?? string.Empty)
+                new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
+                new Claim(ClaimTypes.Role, role)
             ]),
             Expires = DateTime.UtcNow.AddMinutes(_audienceTokenConfig.JwtExpirationInMinutes),
             SigningCredentials = credentials,

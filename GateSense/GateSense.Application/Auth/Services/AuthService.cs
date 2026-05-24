@@ -145,17 +145,17 @@ public class AuthService : IAuthService
 
         await _unitOfWork.CommitTransactionAsync();
 
-        var accessToken = _tokenService.GenerateAuthToken(refreshTokenResult.Value.User);
-
-        //This will attach the HTTP only cookies to the response
-        _cookieService.SetAuthCookies(accessToken, newRefreshToken.Token);
-
         var roles = await _userManager.GetRolesAsync(refreshTokenResult.Value.User);
         var role = UserRoles.User;
         if (roles.Contains(UserRoles.Admin))
         {
             role = UserRoles.Admin;
         }
+
+        var accessToken = _tokenService.GenerateAuthToken(refreshTokenResult.Value.User, role);
+
+        //This will attach the HTTP only cookies to the response
+        _cookieService.SetAuthCookies(accessToken, newRefreshToken.Token);
 
         var response = new LoginResponse
         {
@@ -266,11 +266,6 @@ public class AuthService : IAuthService
 
             await _unitOfWork.CommitTransactionAsync();
 
-            var accessToken = _tokenService.GenerateAuthToken(user);
-
-            //This will attach the HTTP only cookies to the response
-            _cookieService.SetAuthCookies(accessToken, refreshTokenEntity.Token);
-
             var roles = await _userManager.GetRolesAsync(user);
 
             var role = UserRoles.User;
@@ -278,6 +273,11 @@ public class AuthService : IAuthService
             {
                 role = UserRoles.Admin;
             }
+
+            var accessToken = _tokenService.GenerateAuthToken(user, role);
+
+            //This will attach the HTTP only cookies to the response
+            _cookieService.SetAuthCookies(accessToken, refreshTokenEntity.Token);
 
             return Result<LoginResponse>.Success(new LoginResponse
             {

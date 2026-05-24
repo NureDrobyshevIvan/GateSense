@@ -51,27 +51,24 @@ public static class ConfigureApp
         app.UseRouting();
         
         var frontEndUrl = config.GetSection("ApplicationUrls")["FrontEnd"];
+        var allowedOrigins = new List<string>
+        {
+            "http://localhost:4200",
+            "http://127.0.0.1:4200"
+        };
         if (!string.IsNullOrEmpty(frontEndUrl))
         {
-            app.UseCors(options =>
-            {
-                options
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials()
-                    .WithOrigins(frontEndUrl);
-            });
+            allowedOrigins.AddRange(frontEndUrl.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
         }
-        else
+
+        app.UseCors(options =>
         {
-            app.UseCors(options =>
-            {
-                options
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowAnyOrigin();
-            });
-        }
+            options
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials()
+                .WithOrigins(allowedOrigins.ToArray());
+        });
         
         app.UseAuthentication();
         app.UseAuthorization();

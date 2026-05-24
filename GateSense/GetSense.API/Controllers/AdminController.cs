@@ -59,6 +59,26 @@ public class AdminController : ControllerBase
         );
     }
 
+    [HttpPost("users/{userId:int}/roles")]
+    public async Task<IActionResult> AssignRole(int userId, [FromBody] AssignRoleRequest request)
+    {
+        var result = await _adminService.AssignRoleAsync(userId, request.Role);
+        return result.MatchNoData(
+            successStatusCode: StatusCodes.Status200OK,
+            failure: ApiResults.ToProblemDetails
+        );
+    }
+
+    [HttpDelete("users/{userId:int}/roles/{role}")]
+    public async Task<IActionResult> RemoveRole(int userId, string role)
+    {
+        var result = await _adminService.RemoveRoleAsync(userId, role);
+        return result.MatchNoData(
+            successStatusCode: StatusCodes.Status200OK,
+            failure: ApiResults.ToProblemDetails
+        );
+    }
+
     [HttpGet("garages")]
     public async Task<IActionResult> GetAllGarages()
     {
