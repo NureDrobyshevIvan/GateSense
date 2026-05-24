@@ -26,87 +26,103 @@ public class BackupService : IBackupService
 
     public async Task<Result<BackupDto>> ExportAsync()
     {
-        var dto = new BackupDto();
-
-        var users = await _userManager.Users.ToListAsync();
-        foreach (var u in users)
+        try
         {
-            var roles = await _userManager.GetRolesAsync(u);
-            dto.Users.Add(new BackupUser
+            var dto = new BackupDto();
+
+            var users = await _userManager.Users.ToListAsync();
+            foreach (var u in users)
             {
-                Id = u.Id,
-                UserName = u.UserName,
-                Email = u.Email,
-                FirstName = u.FirstName,
-                LastName = u.LastName,
-                Roles = roles.ToList()
-            });
+                var roles = await _userManager.GetRolesAsync(u);
+                dto.Users.Add(new BackupUser
+                {
+                    Id = u.Id,
+                    UserName = u.UserName,
+                    Email = u.Email,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    Roles = roles.ToList()
+                });
+            }
+
+            // Load entities into memory first, then map (avoids EF translation issues with enum casts)
+            var garages = await _db.Garages.AsNoTracking().ToListAsync();
+            dto.Garages = garages.Select(g => new BackupGarage
+            {
+                Id = g.Id,
+                Name = g.Name,
+                Address = g.Address,
+                TimeZone = g.TimeZone,
+                OwnerId = g.OwnerId
+            }).ToList();
+
+            var devices = await _db.Devices.AsNoTracking().ToListAsync();
+            dto.Devices = devices.Select(d => new BackupDevice
+            {
+                Id = d.Id,
+                GarageId = d.GarageId,
+                SerialNumber = d.SerialNumber,
+                DeviceType = (int)d.DeviceType,
+                Status = (int)d.Status,
+                FirmwareVersion = d.FirmwareVersion,
+                LastHeartbeatOn = d.LastHeartbeatOn
+            }).ToList();
+
+            var keys = await _db.AccessKeys.AsNoTracking().ToListAsync();
+            dto.AccessKeys = keys.Select(k => new BackupAccessKey
+            {
+                Id = k.Id,
+                GarageId = k.GarageId,
+                IssuedByUserId = k.IssuedByUserId,
+                KeyType = (int)k.KeyType,
+                Status = (int)k.Status,
+                Token = k.Token,
+                ExpiresOn = k.ExpiresOn
+            }).ToList();
+
+            var accesses = await _db.GarageAccesses.AsNoTracking().ToListAsync();
+            dto.GarageAccess = accesses.Select(a => new BackupGarageAccess
+            {
+                Id = a.Id,
+                GarageId = a.GarageId,
+                UserId = a.UserId,
+                AccessLevel = (int)a.AccessLevel,
+                ExpiresOn = a.ExpiresOn
+            }).ToList();
+
+            var events = await _db.GateEvents.AsNoTracking().ToListAsync();
+            dto.GateEvents = events.Select(e => new BackupGateEvent
+            {
+                Id = e.Id,
+                GarageId = e.GarageId,
+                InitiatorUserId = e.InitiatorUserId,
+                AccessKeyId = e.AccessKeyId,
+                TriggerSource = (int)e.TriggerSource,
+                Action = (int)e.Action,
+                Result = (int)e.Result,
+                FailureReason = e.FailureReason,
+                CreatedOn = e.CreatedOn
+            }).ToList();
+
+            var readings = await _db.SensorReadings.AsNoTracking().ToListAsync();
+            dto.SensorReadings = readings.Select(s => new BackupSensorReading
+            {
+                Id = s.Id,
+                DeviceId = s.DeviceId,
+                SensorType = (int)s.SensorType,
+                Value = s.Value,
+                Unit = s.Unit,
+                RecordedOn = s.RecordedOn
+            }).ToList();
+
+            return Result<BackupDto>.Success(dto);
         }
-
-        dto.Garages = await _db.Garages.AsNoTracking().Select(g => new BackupGarage
+        catch (Exception ex)
         {
-            Id = g.Id,
-            Name = g.Name,
-            Address = g.Address,
-            TimeZone = g.TimeZone,
-            OwnerId = g.OwnerId
-        }).ToListAsync();
-
-        dto.Devices = await _db.Devices.AsNoTracking().Select(d => new BackupDevice
-        {
-            Id = d.Id,
-            GarageId = d.GarageId,
-            SerialNumber = d.SerialNumber,
-            DeviceType = (int)d.DeviceType,
-            Status = (int)d.Status,
-            FirmwareVersion = d.FirmwareVersion,
-            LastHeartbeatOn = d.LastHeartbeatOn
-        }).ToListAsync();
-
-        dto.AccessKeys = await _db.AccessKeys.AsNoTracking().Select(k => new BackupAccessKey
-        {
-            Id = k.Id,
-            GarageId = k.GarageId,
-            IssuedByUserId = k.IssuedByUserId,
-            KeyType = (int)k.KeyType,
-            Status = (int)k.Status,
-            Token = k.Token,
-            ExpiresOn = k.ExpiresOn
-        }).ToListAsync();
-
-        dto.GarageAccess = await _db.GarageAccesses.AsNoTracking().Select(a => new BackupGarageAccess
-        {
-            Id = a.Id,
-            GarageId = a.GarageId,
-            UserId = a.UserId,
-            AccessLevel = (int)a.AccessLevel,
-            ExpiresOn = a.ExpiresOn
-        }).ToListAsync();
-
-        dto.GateEvents = await _db.GateEvents.AsNoTracking().Select(e => new BackupGateEvent
-        {
-            Id = e.Id,
-            GarageId = e.GarageId,
-            InitiatorUserId = e.InitiatorUserId,
-            AccessKeyId = e.AccessKeyId,
-            TriggerSource = (int)e.TriggerSource,
-            Action = (int)e.Action,
-            Result = (int)e.Result,
-            FailureReason = e.FailureReason,
-            CreatedOn = e.CreatedOn
-        }).ToListAsync();
-
-        dto.SensorReadings = await _db.SensorReadings.AsNoTracking().Select(s => new BackupSensorReading
-        {
-            Id = s.Id,
-            DeviceId = s.DeviceId,
-            SensorType = (int)s.SensorType,
-            Value = s.Value,
-            Unit = s.Unit,
-            RecordedOn = s.RecordedOn
-        }).ToListAsync();
-
-        return Result<BackupDto>.Success(dto);
+            return Result<BackupDto>.Failure(
+                Error.InternalServerError("backup.EXPORT_FAILED",
+                    $"Export failed: {ex.GetType().Name}: {ex.Message}"));
+        }
     }
 
     public async Task<Result<ImportBackupResponse>> ImportAsync(BackupDto backup)

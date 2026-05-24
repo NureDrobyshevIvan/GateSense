@@ -59,8 +59,16 @@ export class BackupComponent {
 
   doExport(): void {
     this.exporting.set(true);
+    this.resultMessage.set(null);
     this.api.exportBackup().subscribe({
       next: (blob) => {
+        console.log('[backup] received blob:', blob.size, 'bytes, type=', blob.type);
+        if (blob.size === 0) {
+          this.resultOk.set(false);
+          this.resultMessage.set('Server returned empty file');
+          this.exporting.set(false);
+          return;
+        }
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         const ts = new Date().toISOString().replace(/[:.]/g, '-');
@@ -72,7 +80,12 @@ export class BackupComponent {
         URL.revokeObjectURL(url);
         this.exporting.set(false);
       },
-      error: () => { this.exporting.set(false); }
+      error: (err) => {
+        console.error('[backup] export failed:', err);
+        this.resultOk.set(false);
+        this.resultMessage.set(`Export failed: HTTP ${err.status} ${err.statusText ?? ''}${err.error?.message ? ' - ' + err.error.message : ''}`);
+        this.exporting.set(false);
+      }
     });
   }
 
